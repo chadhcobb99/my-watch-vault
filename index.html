@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Watch Vault — V3.10</title>
+<title>My Watch Vault — V3.11</title>
 
 <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
 
@@ -55,11 +55,11 @@ button{cursor:pointer}
 .sectionhead h2{margin:0;font-family:Georgia,serif;color:var(--green3)}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
 .card{overflow:hidden;background:var(--panel2);border:1px solid var(--line);border-radius:15px;position:relative;display:flex;flex-direction:column;min-height:100%}
-.photo{aspect-ratio:16/9;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.10) 0%,rgba(255,255,255,.035) 30%,transparent 58%),linear-gradient(180deg,#111a15 0%,#0a110d 100%);display:grid;place-items:center;overflow:hidden;padding:16px;border-bottom:1px solid var(--line)}
-.photo img{width:100%;height:100%;max-width:64%;max-height:88%;object-fit:contain;object-position:center;margin:auto;display:block;transform:none;background:transparent;border-radius:0;filter:drop-shadow(0 9px 15px rgba(0,0,0,.42))}
+.photo{aspect-ratio:4/3;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.10) 0%,rgba(255,255,255,.035) 30%,transparent 58%),linear-gradient(180deg,#111a15 0%,#0a110d 100%);display:grid;place-items:center;overflow:hidden;padding:16px;border-bottom:1px solid var(--line)}
+.photo img{width:100%;height:100%;max-width:66%;max-height:90%;object-fit:contain;object-position:center;margin:auto;display:block;transform:none;background:transparent;border-radius:0;filter:drop-shadow(0 9px 15px rgba(0,0,0,.42))}
 .placeholder{font-size:3rem;opacity:.55}
 .photo img.photo-light-source{max-width:64%;max-height:76%;padding:0;background:transparent;border-radius:0;mix-blend-mode:multiply;filter:brightness(1.16) contrast(1.10) drop-shadow(0 10px 16px rgba(0,0,0,.32))}
-.photo img.photo-standardized{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:cover;object-position:center;margin:0;filter:none;background:#0b120e}
+.photo img.photo-standardized{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center;margin:0;filter:none;background:#0b120e}
 .photo img.photo-wide-source{max-width:62%;max-height:74%;object-fit:contain}
 
 .cardbody{padding:13px 15px 15px;border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1}
@@ -215,6 +215,7 @@ const CATALOG_IMAGES={
 
 
 const EXACT_MODEL_IMAGES={
+  "Aquanaut Army Green — Green Strap":"watch-images/patek-aquanaut-army-green.png",
   "Aquanaut Rose Gold — Chocolate":"watch-images/patek-aquanaut-5167r-chocolate.png",
   "GMT-Master II — Zombie (GRNR Yellow Rolesor)":"watch-images/rolex-gmt-zombie.png",
   "Oyster Perpetual 41 — Tiffany / Turquoise Blue":"watch-images/rolex-op41-tiffany.png",
@@ -255,6 +256,9 @@ function exactModelImage(w){
   // Backward compatibility with watches already saved under older model labels.
   if(model==="Aquanaut Rose Gold — Chocolate")
     return EXACT_MODEL_IMAGES["Aquanaut Rose Gold — Chocolate"];
+
+  if(model==="Aquanaut Army Green — Green Strap")
+    return EXACT_MODEL_IMAGES["Aquanaut Army Green — Green Strap"];
 
   const lower=model.toLowerCase();
 
@@ -302,6 +306,9 @@ function exactModelImage(w){
 
   if(lower.includes("datejust 41") && lower.includes("mint"))
     return EXACT_MODEL_IMAGES["Datejust 41 — Mint Green Jubilee"];
+
+  if(lower.includes("aquanaut") && (lower.includes("army green") || lower.includes("khaki green")))
+    return EXACT_MODEL_IMAGES["Aquanaut Army Green — Green Strap"];
 
   return "";
 }
@@ -398,6 +405,7 @@ const WATCH_CATALOG={
     ["Nautilus","patekNautilus"],
     ["Aquanaut","patekAquanaut"],
     ["Aquanaut Rose Gold — Chocolate","patekAquanaut"],
+    ["Aquanaut Army Green — Green Strap","patekAquanaut"],
     ["Twenty~4","patekCalatrava"],
     ["Pocket Watches","patekCalatrava"],
     ["Rare Handcrafts","patekCalatrava"],
@@ -571,6 +579,11 @@ if(brand==="Audemars Piguet"){
     if(model==="Aquanaut Rose Gold — Chocolate"){
       return [
         {ref:"5167R-001",label:"Aquanaut — rose gold, chocolate brown",img:EXACT_MODEL_IMAGES["Aquanaut Rose Gold — Chocolate"]}
+      ];
+    }
+    if(model==="Aquanaut Army Green — Green Strap"){
+      return [
+        {ref:"5168G-010",label:"Aquanaut — white gold, khaki green dial and green composite strap",img:EXACT_MODEL_IMAGES["Aquanaut Army Green — Green Strap"]}
       ];
     }
 if(brand==="Patek Philippe"){
@@ -780,6 +793,7 @@ function getWatchDetails(w){
     "5811/1G-001":{size:"41mm",material:"White Gold",dial:"Blue",bezel:"Rounded Octagonal",bracelet:"Integrated"},
     "5167A-001":{size:"40.8mm",material:"Stainless Steel",dial:"Black Embossed",bezel:"Rounded Octagonal",bracelet:"Composite Strap"},
     "5167R-001":{size:"40.8mm",material:"18 ct Rose Gold",dial:"Chocolate Brown Embossed",bezel:"Rounded Octagonal",bracelet:"Chocolate Composite Strap"},
+    "5168G-010":{size:"42.2mm",material:"18 ct White Gold",dial:"Khaki Green Embossed",bezel:"Rounded Octagonal",bracelet:"Khaki Green Composite Strap"},
     "15510ST.OO.1320ST.01":{size:"41mm",material:"Stainless Steel",dial:"Blue Grande Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"},
     "15510ST.OO.1320ST.02":{size:"41mm",material:"Stainless Steel",dial:"Grey Grande Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"},
     "15510ST.OO.1320ST.03":{size:"41mm",material:"Stainless Steel",dial:"Green Grande Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"}
@@ -824,6 +838,7 @@ function displayReference(w){
   if(model.includes("tiffany") || model.includes("turquoise")) return "124300";
   if(model.includes("oyster perpetual 41") && model.includes("green")) return "134300";
   if(model.includes("datejust 41") && model.includes("mint")) return "126334";
+  if(model.includes("aquanaut") && (model.includes("army green") || model.includes("khaki green"))) return "5168G-010";
   return "";
 }
 

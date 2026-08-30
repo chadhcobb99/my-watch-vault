@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Watch Vault — V3.11</title>
+<title>My Watch Vault — V3.12</title>
 
 <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
 
@@ -113,6 +113,10 @@ button{cursor:pointer}
       <button id="loginBtn" class="btn green" onclick="login()">Sign in to OneDrive</button>
       <button id="logoutBtn" class="btn" style="display:none" onclick="logout()">Sign Out</button>
       <button class="btn gold" onclick="openShareView()">👁 Share View</button>
+      <button class="btn" onclick="copyShareLink()">🔗 Copy Share Link</button>
+      <button class="btn" onclick="emailShareLink()">✉️ Email</button>
+      <button class="btn" onclick="nativeShareLink()">📤 Share</button>
+      <button class="btn owner-only" onclick="exportShareData()">⬇️ Export Share Data</button>
     </div>
   </section>
 
@@ -138,7 +142,7 @@ button{cursor:pointer}
       <button class="btn gold owner-only" onclick="openModal()">＋ Add Watch</button>
     </div>
     <div id="watchGrid" class="grid"></div>
-    <div class="notice">Owner data syncs to your Microsoft OneDrive App Folder. Viewer mode is read-only.</div>
+    <div class="notice">Owner data syncs to your Microsoft OneDrive App Folder. Viewer mode is read-only. To refresh the permanent short Share View, click <b>Export Share Data</b> and replace <b>share-data.json</b> in GitHub.</div>
   </section>
 </div>
 
@@ -851,7 +855,10 @@ function render(){
   document.getElementById("dreamValue").textContent=money(dream.reduce((s,w)=>s+(Number(w.price)||0),0));
   let list=vault.watches.filter(w=>(activeTab==="all"||w.section===activeTab)&&(`${w.brand} ${w.model} ${w.ref} ${w.notes}`.toLowerCase().includes(q)));
   const g=document.getElementById("watchGrid");
-  if(!list.length){g.innerHTML=`<div class="empty">No watches here yet.<br><span class="owner-only">Click <b>Add Watch</b> to start your vault.</span></div>`;return}
+  if(!list.length){
+    g.innerHTML=`<div class="empty">${viewerMode?"No shared watches are published yet.":"No watches here yet."}<br><span class="owner-only">Click <b>Add Watch</b> to start your vault.</span></div>`;
+    return
+  }
   g.innerHTML=list.map(w=>`<article class="card">
     <div class="photo">${repairCatalogPhoto(w)?`<img class="${photoClass(w)}" src="${repairCatalogPhoto(w)}" alt="${esc(w.brand+" "+w.model)}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>⌚</div>'">`:`<div class="placeholder">⌚</div>`}</div>
     <div class="cardbody">
@@ -883,11 +890,91 @@ async function saveWatch(){
 }
 async function deleteWatch(id){if(!confirm("Delete this watch?"))return;vault.watches=vault.watches.filter(w=>w.id!==id);render();await saveCloud()}
 async function moveWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;w.section=w.section==="collection"?"dream":"collection";render();await saveCloud()}
-function base64UrlEncode(str){
-  const bytes=new TextEncoder().encode(str);
-  let binary="";
-  bytes.forEach(b=>binary+=String.fromCharCode(b));
-  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const PUBLIC_SHARE_FILE="share-data.json";
+const SHORT_SHARE_URL="https://chadhcobb99.github.io/my-watch-vault/?view=1";
+
+function getShortShareUrl(){
+  return SHORT_SHARE_URL;
+}
+
+function openShareView(){
+  window.open(getShortShareUrl(),"_blank");
+}
+
+async function copyShareLink(){
+  const url=getShortShareUrl();
+  try{
+    await navigator.clipboard.writeText(url);
+    alert("Share link copied!");
+  }catch(e){
+    prompt("Copy this Share View link:",url);
+  }
+}
+
+function emailShareLink(){
+  const subject=encodeURIComponent("My Watch Vault");
+  const body=encodeURIComponent("Check out my watch collection:\n\n"+getShortShareUrl());
+  window.location.href=`mailto:?subject=${subject}&body=${body}`;
+}
+
+async function nativeShareLink(){
+  const url=getShortShareUrl();
+  const data={title:"My Watch Vault",text:"Check out my watch collection",url};
+  if(navigator.share){
+    try{await navigator.share(data);return}catch(e){
+      if(e && e.name==="AbortError") return;
+    }
+  }
+  await copyShareLink();
+}
+
+function createPublicShareData(){
+  return {
+    version:1,
+    updatedAt:new Date().toISOString(),
+    watches:vault.watches.map(w=>{
+      const copy={...w};
+      const resolved=repairCatalogPhoto(w);
+
+      if(resolved && !String(resolved).startsWith("data:")) copy.photo=resolved;
+      if(String(copy.photo||"").startsWith("data:")) copy.photo="";
+
+      return copy;
+    })
+  };
+}
+
+function exportShareData(){
+  try{
+    const data=createPublicShareData();
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download=PUBLIC_SHARE_FILE;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    alert("share-data.json downloaded. Upload it to the root of your GitHub my-watch-vault repository to update the short Share View link.");
+  }catch(e){
+    console.error("Share export error:",e);
+    alert("Could not export Share View data.");
+  }
+}
+
+async function loadPublicShareData(){
+  try{
+    const r=await fetch(PUBLIC_SHARE_FILE+"?v="+Date.now(),{cache:"no-store"});
+    if(!r.ok) throw new Error("Share data file not found");
+    const data=await r.json();
+    if(data && Array.isArray(data.watches)){
+      vault={watches:data.watches};
+      return true;
+    }
+  }catch(e){
+    console.warn("Public share-data.json could not be loaded:",e);
+  }
+  return false;
 }
 
 function base64UrlDecode(str){
@@ -898,36 +985,7 @@ function base64UrlDecode(str){
   return new TextDecoder().decode(bytes);
 }
 
-function createShareSnapshot(){
-  return {
-    watches:vault.watches.map(w=>{
-      const copy={...w};
-      // For catalog watches, use the exact resolved remote image so shared links stay compact.
-      const resolved=repairCatalogPhoto(w);
-      if(resolved && !String(resolved).startsWith("data:")) copy.photo=resolved;
-      // Personal uploaded base64 photos can make a share URL enormous.
-      // Keep small ones; omit very large ones rather than breaking the share link.
-      if(String(copy.photo||"").startsWith("data:") && String(copy.photo).length>120000) copy.photo="";
-      return copy;
-    })
-  };
-}
-
-function openShareView(){
-  try{
-    const snapshot=createShareSnapshot();
-    const encoded=base64UrlEncode(JSON.stringify(snapshot));
-    const u=new URL(location.href);
-    u.searchParams.set("view","1");
-    u.hash="share="+encoded;
-    window.open(u.toString(),"_blank");
-  }catch(e){
-    console.error("Share View error:",e);
-    alert("Could not create the Share View link. Please try again.");
-  }
-}
-
-function loadSharedSnapshot(){
+function loadLegacySharedSnapshot(){
   try{
     const hash=location.hash.startsWith("#share=")?location.hash.slice(7):"";
     if(!hash) return false;
@@ -937,7 +995,7 @@ function loadSharedSnapshot(){
       return true;
     }
   }catch(e){
-    console.error("Shared snapshot could not be loaded:",e);
+    console.warn("Legacy shared snapshot could not be loaded:",e);
   }
   return false;
 }
@@ -963,7 +1021,8 @@ async function saveCloud(){
 }
 async function start(){
   if(viewerMode){
-    loadSharedSnapshot();
+    const loaded=await loadPublicShareData();
+    if(!loaded) loadLegacySharedSnapshot();
     render();
     return;
   }

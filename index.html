@@ -55,13 +55,14 @@ button{cursor:pointer}
 .sectionhead h2{margin:0;font-family:Georgia,serif;color:var(--green3)}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
 .card{overflow:hidden;background:var(--panel2);border:1px solid var(--line);border-radius:15px;position:relative}
-.photo{aspect-ratio:4/3;background:linear-gradient(135deg,rgba(0,96,57,.13),rgba(200,164,77,.15));display:grid;place-items:center;overflow:hidden;padding:18px}
-.photo img{width:100%;height:100%;object-fit:contain;margin:auto;display:block;transform:scale(1.22);transform-origin:center}
+.photo{aspect-ratio:1/1;background:linear-gradient(135deg,rgba(0,96,57,.13),rgba(200,164,77,.15));display:grid;place-items:center;overflow:hidden;padding:14px}
+.photo img{width:auto;height:auto;max-width:88%;max-height:94%;object-fit:contain;margin:auto;display:block;transform:none}
 .placeholder{font-size:3rem;opacity:.55}
-.cardbody{padding:14px}
+.cardbody{padding:14px 15px 15px;border-top:1px solid var(--line)}
 .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(0,96,57,.10);color:var(--green2);font-size:.72rem;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
 .card h3{font-family:Georgia,serif;margin:9px 0 3px;font-size:1.18rem}
 .ref{font-size:.8rem;color:var(--muted)}
+.specs{font-size:.8rem;color:var(--muted);margin-top:7px;line-height:1.55}.specs span{display:inline-block;margin-right:8px}
 .price{margin-top:10px;font-weight:900;color:var(--gold);font-size:1.08rem}
 .notes{font-size:.84rem;color:var(--muted);margin-top:7px;min-height:20px}
 .cardactions{display:flex;gap:7px;margin-top:12px}
@@ -222,7 +223,22 @@ const WATCH_CATALOG={
     ["Explorer 36","rolexGMT"],
     ["Explorer 40","rolexGMT"],
     ["Explorer II 42","rolexGMT"],
-    ["GMT-Master II 40","rolexGMT"],
+
+    ["GMT-Master II — Batman (BLNR Oyster)","rolexGMT"],
+    ["GMT-Master II — Batgirl (BLNR Jubilee)","rolexGMT"],
+    ["GMT-Master II — Pepsi (BLRO Oyster)","rolexGMT"],
+    ["GMT-Master II — Pepsi (BLRO Jubilee)","rolexGMT"],
+    ["GMT-Master II — Sprite (VTNR Oyster)","rolexGMT"],
+    ["GMT-Master II — Sprite (VTNR Jubilee)","rolexGMT"],
+    ["GMT-Master II — Bruce Wayne (GRNR Oyster)","rolexGMT"],
+    ["GMT-Master II — Bruce Wayne (GRNR Jubilee)","rolexGMT"],
+    ["GMT-Master II — Root Beer (CHNR Rolesor)","rolexGMT"],
+    ["GMT-Master II — Root Beer (CHNR Everose Gold)","rolexGMT"],
+    ["GMT-Master II — GRNR Yellow Rolesor","rolexGMT"],
+    ["GMT-Master II — GRNR Yellow Gold","rolexGMT"],
+    ["GMT-Master II — BLRO White Gold","rolexGMT"],
+    ["GMT-Master II 40 — Other / Custom","rolexGMT"],
+
     ["Land-Dweller 36","rolexDate"],
     ["Land-Dweller 40","rolexDate"],
     ["Oyster Perpetual 28","rolexDate"],
@@ -232,11 +248,20 @@ const WATCH_CATALOG={
     ["Oyster Perpetual 41","rolexDate"],
     ["Sea-Dweller 43","rolexSub"],
     ["Sky-Dweller 42","rolexGMT"],
-    ["Submariner 41","rolexSub"],
+
+    ["Submariner 41 — No Date","rolexSub"],
+    ["Submariner Date — Black (LN)","rolexSub"],
+    ["Submariner Date — Starbucks (LV)","rolexSub"],
+    ["Submariner Date — Bluesy (LB)","rolexSub"],
+    ["Submariner Date — Black Rolesor (LN)","rolexSub"],
+    ["Submariner Date — Yellow Gold Black (LN)","rolexSub"],
+    ["Submariner Date — Yellow Gold Blue (LB)","rolexSub"],
+    ["Submariner Date — White Gold Blue Bezel (LB)","rolexSub"],
+    ["Submariner 41 — Other / Custom","rolexSub"],
+
     ["Yacht-Master 37","rolexGMT"],
     ["Yacht-Master 40","rolexGMT"],
     ["Yacht-Master 42","rolexGMT"],
-    ["Yacht-Master II 44","rolexGMT"],
     ["1908 39","rolexDate"],
     ["Other / Custom Rolex","rolexDate"]
   ],
@@ -244,6 +269,7 @@ const WATCH_CATALOG={
     ["Royal Oak Selfwinding 34","apRoyalOak"],
     ["Royal Oak Selfwinding 37","apRoyalOak"],
     ["Royal Oak Selfwinding 41","apRoyalOak"],
+    ["Royal Oak 15510ST — 50th Anniversary","apRoyalOak"],
     ["Royal Oak Jumbo Extra-Thin 39","apRoyalOak"],
     ["Royal Oak Chronograph","apRoyalOak"],
     ["Royal Oak Perpetual Calendar","apRoyalOak"],
@@ -270,6 +296,7 @@ const WATCH_CATALOG={
     ["Cubitus","patekNautilus"],
     ["Nautilus","patekNautilus"],
     ["Aquanaut","patekAquanaut"],
+    ["Aquanaut Rose Gold — Chocolate","patekAquanaut"],
     ["Twenty~4","patekCalatrava"],
     ["Pocket Watches","patekCalatrava"],
     ["Rare Handcrafts","patekCalatrava"],
@@ -333,26 +360,112 @@ function getReferenceList(brand,model){
   const byBrand=REFERENCE_CATALOG[brand]||{};
 
   if(brand==="Rolex"){
-    if(model==="Submariner 41") return byBrand["Submariner"]||[];
-    if(model==="Cosmograph Daytona 40") return byBrand["Cosmograph Daytona"]||[];
+    const rolexSpecial={
+      "GMT-Master II — Batman (BLNR Oyster)":[
+        {ref:"126710BLNR",label:"Batman — Oyster bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0002"}
+      ],
+      "GMT-Master II — Batgirl (BLNR Jubilee)":[
+        {ref:"126710BLNR",label:"Batgirl — Jubilee bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0003"}
+      ],
+      "GMT-Master II — Pepsi (BLRO Oyster)":[
+        {ref:"126710BLRO",label:"Pepsi — Oyster bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0003"}
+      ],
+      "GMT-Master II — Pepsi (BLRO Jubilee)":[
+        {ref:"126710BLRO",label:"Pepsi — Jubilee bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0002"}
+      ],
+      "GMT-Master II — Sprite (VTNR Oyster)":[
+        {ref:"126720VTNR",label:"Sprite — Oyster bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0001"}
+      ],
+      "GMT-Master II — Sprite (VTNR Jubilee)":[
+        {ref:"126720VTNR",label:"Sprite — Jubilee bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0002"}
+      ],
+      "GMT-Master II — Bruce Wayne (GRNR Oyster)":[
+        {ref:"126710GRNR",label:"Grey/black bezel — Oyster bracelet",img:CATALOG_IMAGES.rolexGMT}
+      ],
+      "GMT-Master II — Bruce Wayne (GRNR Jubilee)":[
+        {ref:"126710GRNR",label:"Grey/black bezel — Jubilee bracelet",img:CATALOG_IMAGES.rolexGMT}
+      ],
+      "GMT-Master II — Root Beer (CHNR Rolesor)":[
+        {ref:"126711CHNR",label:"Root Beer — Everose Rolesor",img:CATALOG_IMAGES.rolexGMT}
+      ],
+      "GMT-Master II — Root Beer (CHNR Everose Gold)":[
+        {ref:"126715CHNR",label:"Root Beer — 18 ct Everose gold",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126715chnr-0001"}
+      ],
+      "GMT-Master II — GRNR Yellow Rolesor":[
+        {ref:"126713GRNR",label:"Grey/black bezel — Yellow Rolesor",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126713grnr-0001"}
+      ],
+      "GMT-Master II — GRNR Yellow Gold":[
+        {ref:"126718GRNR",label:"Grey/black bezel — Yellow gold",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126718grnr-0001"}
+      ],
+      "GMT-Master II — BLRO White Gold":[
+        {ref:"126719BLRO",label:"Pepsi bezel — White gold",img:CATALOG_IMAGES.rolexGMT}
+      ],
+
+      "Submariner 41 — No Date":[
+        {ref:"124060",label:"Submariner — No Date",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m124060-0001"}
+      ],
+      "Submariner Date — Black (LN)":[
+        {ref:"126610LN",label:"Submariner Date — Black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126610ln-0001"}
+      ],
+      "Submariner Date — Starbucks (LV)":[
+        {ref:"126610LV",label:"Starbucks — Green bezel",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126610lv-0002"}
+      ],
+      "Submariner Date — Bluesy (LB)":[
+        {ref:"126613LB",label:"Bluesy — Yellow Rolesor / blue",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126613lb-0002"}
+      ],
+      "Submariner Date — Black Rolesor (LN)":[
+        {ref:"126613LN",label:"Yellow Rolesor / black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126613ln-0002"}
+      ],
+      "Submariner Date — Yellow Gold Black (LN)":[
+        {ref:"126618LN",label:"18 ct yellow gold / black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126618ln-0002"}
+      ],
+      "Submariner Date — Yellow Gold Blue (LB)":[
+        {ref:"126618LB",label:"18 ct yellow gold / blue",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126618lb-0002"}
+      ],
+      "Submariner Date — White Gold Blue Bezel (LB)":[
+        {ref:"126619LB",label:"18 ct white gold / blue bezel",img:CATALOG_IMAGES.rolexSub}
+      ]
+    };
+
+    if(rolexSpecial[model]) return rolexSpecial[model];
+
     if(model.startsWith("Datejust ")) return byBrand["Datejust"]||[];
-    if(model==="GMT-Master II 40") return byBrand["GMT-Master II"]||[];
+    if(model.startsWith("Explorer II")) return byBrand["Explorer II"]||[];
+    if(model.startsWith("Explorer ")) return byBrand["Explorer"]||[];
+    if(model.startsWith("Sea-Dweller")) return byBrand["Sea-Dweller"]||[];
+    if(model.startsWith("Deepsea")) return byBrand["Deepsea"]||[];
+    if(model.startsWith("Yacht-Master")) return byBrand["Yacht-Master"]||[];
+    if(model.startsWith("Oyster Perpetual")) return byBrand["Oyster Perpetual"]||[];
+    if(model.startsWith("Cosmograph Daytona")) return byBrand["Cosmograph Daytona"]||[];
   }
 
-  if(brand==="Audemars Piguet"){
+  
+    if(model==="Royal Oak 15510ST — 50th Anniversary"){
+      return [
+        {ref:"15510ST.OO.1320ST.01",label:"Royal Oak 41 mm — 50th Anniversary, blue dial",img:CATALOG_IMAGES.apRoyalOak},
+        {ref:"15510ST.OO.1320ST.02",label:"Royal Oak 41 mm — 50th Anniversary, grey dial",img:CATALOG_IMAGES.apRoyalOak},
+        {ref:"15510ST.OO.1320ST.03",label:"Royal Oak 41 mm — 50th Anniversary, green dial",img:CATALOG_IMAGES.apRoyalOak}
+      ];
+    }
+if(brand==="Audemars Piguet"){
     if(model.startsWith("Royal Oak Offshore")) return byBrand["Royal Oak Offshore"]||[];
     if(model.startsWith("Royal Oak ") || model==="Royal Oak Chronograph" || model==="Royal Oak Perpetual Calendar" || model==="Royal Oak Flying Tourbillon" || model==="Royal Oak Double Balance Wheel Openworked")
       return byBrand["Royal Oak"]||[];
     if(model.startsWith("Code 11.59")) return byBrand["Code 11.59"]||[];
   }
 
-  if(brand==="Patek Philippe"){
+  
+    if(model==="Aquanaut Rose Gold — Chocolate"){
+      return [
+        {ref:"5167R-001",label:"Aquanaut — rose gold, chocolate brown",img:CATALOG_IMAGES.patekAquanaut}
+      ];
+    }
+if(brand==="Patek Philippe"){
     return byBrand[model]||[];
   }
 
   return byBrand[model]||[];
 }
-
 let selectedCatalogPhoto="";
 
 function populateCatalogModels(){
@@ -485,6 +598,60 @@ function repairCatalogPhoto(w){
   return w.photo;
 }
 
+
+function getWatchDetails(w){
+  const ref=String(w?.ref||"").toUpperCase();
+
+  const map={
+    "126334":{size:"41mm",material:"Oystersteel / White Gold",dial:"Blue / Multiple",bezel:"Fluted",bracelet:"Jubilee / Oyster"},
+    "126300":{size:"41mm",material:"Oystersteel",dial:"Multiple",bezel:"Smooth",bracelet:"Jubilee / Oyster"},
+    "126710BLNR":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Black / Blue Cerachrom",bracelet:"Jubilee / Oyster"},
+    "126710BLRO":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Red / Blue Cerachrom",bracelet:"Jubilee / Oyster"},
+    "126720VTNR":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Green / Black Cerachrom",bracelet:"Jubilee / Oyster"},
+    "126710GRNR":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Grey / Black Cerachrom",bracelet:"Jubilee / Oyster"},
+    "126711CHNR":{size:"40mm",material:"Everose Rolesor",dial:"Black",bezel:"Brown / Black Cerachrom",bracelet:"Oyster"},
+    "126715CHNR":{size:"40mm",material:"18 ct Everose Gold",dial:"Black",bezel:"Brown / Black Cerachrom",bracelet:"Oyster"},
+    "126713GRNR":{size:"40mm",material:"Yellow Rolesor",dial:"Black",bezel:"Grey / Black Cerachrom",bracelet:"Jubilee"},
+    "126718GRNR":{size:"40mm",material:"18 ct Yellow Gold",dial:"Black",bezel:"Grey / Black Cerachrom",bracelet:"Jubilee"},
+    "126610LN":{size:"41mm",material:"Oystersteel",dial:"Black",bezel:"Black Cerachrom",bracelet:"Oyster"},
+    "126610LV":{size:"41mm",material:"Oystersteel",dial:"Black",bezel:"Green Cerachrom",bracelet:"Oyster"},
+    "124060":{size:"41mm",material:"Oystersteel",dial:"Black",bezel:"Black Cerachrom",bracelet:"Oyster"},
+    "126613LN":{size:"41mm",material:"Yellow Rolesor",dial:"Black",bezel:"Black Cerachrom",bracelet:"Oyster"},
+    "126613LB":{size:"41mm",material:"Yellow Rolesor",dial:"Blue",bezel:"Blue Cerachrom",bracelet:"Oyster"},
+    "126618LN":{size:"41mm",material:"18 ct Yellow Gold",dial:"Black",bezel:"Black Cerachrom",bracelet:"Oyster"},
+    "126618LB":{size:"41mm",material:"18 ct Yellow Gold",dial:"Blue",bezel:"Blue Cerachrom",bracelet:"Oyster"},
+    "126500LN":{size:"40mm",material:"Oystersteel",dial:"Black / White",bezel:"Black Cerachrom",bracelet:"Oyster"},
+    "124270":{size:"36mm",material:"Oystersteel",dial:"Black",bezel:"Smooth",bracelet:"Oyster"},
+    "226570":{size:"42mm",material:"Oystersteel",dial:"Black / White",bezel:"Fixed 24-hour",bracelet:"Oyster"},
+    "126600":{size:"43mm",material:"Oystersteel",dial:"Black",bezel:"Black Cerachrom",bracelet:"Oyster"},
+    "136660":{size:"44mm",material:"Oystersteel",dial:"Black / D-blue",bezel:"Cerachrom",bracelet:"Oyster"},
+    "126622":{size:"40mm",material:"Oystersteel / Platinum",dial:"Multiple",bezel:"Platinum",bracelet:"Oyster"},
+    "124300":{size:"41mm",material:"Oystersteel",dial:"Multiple",bezel:"Smooth",bracelet:"Oyster"},
+    "15510ST":{size:"41mm",material:"Stainless Steel",dial:"Grande Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"},
+    "16202ST":{size:"39mm",material:"Stainless Steel",dial:"Petite Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"},
+    "5811/1G-001":{size:"41mm",material:"White Gold",dial:"Blue",bezel:"Rounded Octagonal",bracelet:"Integrated"},
+    "5167A-001":{size:"40.8mm",material:"Stainless Steel",dial:"Black Embossed",bezel:"Rounded Octagonal",bracelet:"Composite Strap"},
+    "5167R-001":{size:"40.8mm",material:"18 ct Rose Gold",dial:"Chocolate Brown Embossed",bezel:"Rounded Octagonal",bracelet:"Chocolate Composite Strap"},
+    "15510ST.OO.1320ST.01":{size:"41mm",material:"Stainless Steel",dial:"Blue Grande Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"},
+    "15510ST.OO.1320ST.02":{size:"41mm",material:"Stainless Steel",dial:"Grey Grande Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"},
+    "15510ST.OO.1320ST.03":{size:"41mm",material:"Stainless Steel",dial:"Green Grande Tapisserie",bezel:"Octagonal",bracelet:"Integrated Steel"}
+  };
+
+  return map[ref]||null;
+}
+
+function renderWatchSpecs(w){
+  const d=getWatchDetails(w);
+  if(!d) return "";
+  return `<div class="specs">
+    ${d.size?`<span>⌚ ${esc(d.size)}</span>`:""}
+    ${d.material?`<span>◈ ${esc(d.material)}</span>`:""}
+    ${d.dial?`<span>● ${esc(d.dial)}</span>`:""}
+    ${d.bezel?`<span>⚙ ${esc(d.bezel)}</span>`:""}
+    ${d.bracelet?`<span>▦ ${esc(d.bracelet)}</span>`:""}
+  </div>`;
+}
+
 function render(){
   const q=document.getElementById("search").value.trim().toLowerCase();
   const owned=vault.watches.filter(w=>w.section==="collection"), dream=vault.watches.filter(w=>w.section==="dream");
@@ -501,6 +668,7 @@ function render(){
       <span class="badge">${w.section==="collection"?"Owned":"Dream Watch"}</span>
       <h3>${esc(w.brand)} ${esc(w.model)}</h3>
       <div class="ref">${w.ref?`Ref. ${esc(w.ref)}`:"No reference entered"}</div>
+      ${renderWatchSpecs(w)}
       <div class="price">${money(w.price)}</div>
       <div class="notes">${esc(w.notes||"")}</div>
       <div class="cardactions owner-only">

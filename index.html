@@ -170,7 +170,12 @@ button{cursor:pointer}
       <div class="field"><label>Section</label><select id="fSection"><option value="collection">My Collection</option><option value="dream">Dream Watches</option></select></div>
       <div class="field"><label>Brand</label><input id="fBrand" placeholder="Rolex"></div>
       <div class="field"><label>Model</label><input id="fModel" placeholder="Submariner"></div>
-      <div class="field"><label>Reference</label><input id="fRef" placeholder="126610LN"></div>
+      <div class="field"><label>Reference</label>
+<select id="fRefSelect" onchange="applyCatalogReference()">
+<option value="">Choose a reference...</option>
+</select>
+<input id="fRef" placeholder="Or enter a reference manually" style="margin-top:7px">
+</div>
       <div class="field"><label>Price / Value ($)</label><input id="fPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
       <div class="field"><label>Date Acquired / Target Date</label><input id="fDate" type="date"></div>
       <div class="field span2"><label>Watch Photo</label><input id="fPhoto" type="file" accept="image/*"></div>
@@ -223,83 +228,100 @@ const WATCH_CATALOG={
   ]
 };
 
+const REFERENCE_CATALOG={
+ "Rolex":{
+   "Submariner":[
+     {ref:"124060",label:"Submariner — Oystersteel, black dial/bezel",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m124060-0001"},
+     {ref:"126610LN",label:"Submariner Date — Oystersteel, black dial/bezel",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126610ln-0001"},
+     {ref:"126610LV",label:"Submariner Date — Oystersteel, green bezel",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126610lv-0002"},
+     {ref:"126613LN",label:"Submariner Date — Yellow Rolesor, black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126613ln-0002"},
+     {ref:"126613LB",label:"Submariner Date — Yellow Rolesor, blue",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126613lb-0002"},
+     {ref:"126618LN",label:"Submariner Date — Yellow gold, black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126618ln-0002"},
+     {ref:"126618LB",label:"Submariner Date — Yellow gold, blue",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126618lb-0002"}
+   ],
+   "Cosmograph Daytona":[
+     {ref:"126500LN",label:"Cosmograph Daytona — Oystersteel",img:CATALOG_IMAGES.rolexDaytona}
+   ],
+   "Datejust":[{ref:"126334",label:"Datejust 41",img:CATALOG_IMAGES.rolexDate}],
+   "GMT-Master II":[{ref:"126710BLNR",label:"GMT-Master II — Oystersteel",img:CATALOG_IMAGES.rolexGMT}]
+ },
+ "Audemars Piguet":{
+   "Royal Oak":[
+     {ref:"15510ST",label:"Royal Oak Selfwinding 41 mm",img:CATALOG_IMAGES.apRoyalOak},
+     {ref:"16202ST",label:"Royal Oak Jumbo Extra-Thin",img:CATALOG_IMAGES.apRoyalOak}
+   ],
+   "Royal Oak Offshore":[{ref:"26420SO",label:"Royal Oak Offshore Selfwinding Chronograph",img:CATALOG_IMAGES.apOffshore}],
+   "Code 11.59":[{ref:"15210ST",label:"Code 11.59 Selfwinding",img:CATALOG_IMAGES.apCode}]
+ },
+ "Patek Philippe":{
+   "Nautilus":[
+     {ref:"5811/1G-001",label:"Nautilus — white gold",img:CATALOG_IMAGES.patekNautilus},
+     {ref:"5712/1R-001",label:"Nautilus — rose gold",img:CATALOG_IMAGES.patekNautilus},
+     {ref:"5990/1R-001",label:"Nautilus Travel Time Chronograph",img:CATALOG_IMAGES.patekNautilus},
+     {ref:"5740/1G-001",label:"Nautilus Perpetual Calendar",img:CATALOG_IMAGES.patekNautilus}
+   ],
+   "Aquanaut":[{ref:"5167A-001",label:"Aquanaut — steel",img:CATALOG_IMAGES.patekAquanaut}],
+   "Calatrava":[{ref:"6119G-001",label:"Calatrava",img:CATALOG_IMAGES.patekCalatrava}]
+ }
+};
+
 let selectedCatalogPhoto="";
 
 function populateCatalogModels(){
   const brand=document.getElementById("catalogBrand").value;
   const modelSel=document.getElementById("catalogModel");
   modelSel.innerHTML='<option value="">Choose a model...</option>';
+  document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';
   selectedCatalogPhoto="";
   document.getElementById("catalogPreview").style.display="none";
   if(!brand||!WATCH_CATALOG[brand]){modelSel.disabled=true;return}
   WATCH_CATALOG[brand].forEach(([model,key])=>{
-    const o=document.createElement("option");
-    o.value=model; o.dataset.imageKey=key; o.textContent=model; modelSel.appendChild(o);
+    const o=document.createElement("option");o.value=model;o.dataset.imageKey=key;o.textContent=model;modelSel.appendChild(o);
   });
   modelSel.disabled=false;
 }
-
 function applyCatalogModel(){
-  const brand=document.getElementById("catalogBrand").value;
-  const modelSel=document.getElementById("catalogModel");
-  const opt=modelSel.options[modelSel.selectedIndex];
-  const model=modelSel.value;
-  if(!brand||!model||!opt){document.getElementById("catalogPreview").style.display="none";return}
-  const imageKey=opt.dataset.imageKey;
-  selectedCatalogPhoto=CATALOG_IMAGES[imageKey]||"";
+  const brand=document.getElementById("catalogBrand").value, model=document.getElementById("catalogModel").value;
+  const refSel=document.getElementById("fRefSelect");
   document.getElementById("fBrand").value=brand;
   document.getElementById("fModel").value=model;
-  document.getElementById("catalogPreviewTitle").textContent=brand+" "+model;
+  document.getElementById("fRef").value="";
+  refSel.innerHTML='<option value="">Choose a reference...</option>';
+  const refs=REFERENCE_CATALOG[brand]?.[model]||[];
+  refs.forEach((r,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=r.ref+" — "+r.label;refSel.appendChild(o)});
+  if(refs.length){
+    refSel.disabled=false;
+    document.getElementById("catalogPreviewTitle").textContent=brand+" "+model+" — choose a reference";
+    document.getElementById("catalogPreviewImage").style.display="none";
+    document.getElementById("catalogPreview").style.display="grid";
+  }else{
+    refSel.disabled=true;
+    const opt=document.getElementById("catalogModel").selectedOptions[0];
+    selectedCatalogPhoto=CATALOG_IMAGES[opt?.dataset.imageKey]||"";
+    showCatalogPreview(brand+" "+model,selectedCatalogPhoto);
+  }
+}
+function applyCatalogReference(){
+  const brand=document.getElementById("catalogBrand").value, model=document.getElementById("catalogModel").value;
+  const idx=document.getElementById("fRefSelect").value;
+  if(idx==="")return;
+  const r=REFERENCE_CATALOG[brand]?.[model]?.[Number(idx)];
+  if(!r)return;
+  document.getElementById("fRef").value=r.ref;
+  selectedCatalogPhoto=r.img||"";
+  showCatalogPreview(brand+" "+model+" — "+r.ref,selectedCatalogPhoto);
+}
+function showCatalogPreview(title,imgsrc){
+  document.getElementById("catalogPreviewTitle").textContent=title;
   const img=document.getElementById("catalogPreviewImage");
-  img.src=selectedCatalogPhoto;
+  img.src=imgsrc||"";img.style.display=imgsrc?"block":"none";
   img.onerror=()=>{img.style.display="none"};
-  img.onload=()=>{img.style.display="block"};
   document.getElementById("catalogPreview").style.display="grid";
 }
 
-
-const params=new URLSearchParams(location.search);
-const viewerMode=params.get("view")==="1";
-if(viewerMode) document.body.classList.add("viewer");
-
-function applyTheme(t){document.body.classList.toggle("dark",t==="dark");document.getElementById("themeBtn").textContent=t==="dark"?"☀️ Light Mode":"🌙 Dark Mode"}
-function toggleTheme(){const t=document.body.classList.contains("dark")?"light":"dark";localStorage.setItem("watchVaultTheme",t);applyTheme(t)}
-applyTheme(localStorage.getItem("watchVaultTheme")||((matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light"));
-
-function tick(){const n=new Date();document.getElementById("clockDate").textContent=n.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});document.getElementById("clockTime").textContent=n.toLocaleTimeString()}
-tick();setInterval(tick,1000);
-
-function money(v){return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(v)||0)}
-function esc(s){const d=document.createElement("div");d.textContent=s||"";return d.innerHTML}
-function setTab(t){activeTab=t;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));document.getElementById("sectionTitle").textContent=t==="collection"?"My Collection":t==="dream"?"Dream Watches":"All Watches";render()}
-function render(){
-  const q=document.getElementById("search").value.trim().toLowerCase();
-  const owned=vault.watches.filter(w=>w.section==="collection"), dream=vault.watches.filter(w=>w.section==="dream");
-  document.getElementById("ownedCount").textContent=owned.length;
-  document.getElementById("dreamCount").textContent=dream.length;
-  document.getElementById("ownedValue").textContent=money(owned.reduce((s,w)=>s+(Number(w.price)||0),0));
-  document.getElementById("dreamValue").textContent=money(dream.reduce((s,w)=>s+(Number(w.price)||0),0));
-  let list=vault.watches.filter(w=>(activeTab==="all"||w.section===activeTab)&&(`${w.brand} ${w.model} ${w.ref} ${w.notes}`.toLowerCase().includes(q)));
-  const g=document.getElementById("watchGrid");
-  if(!list.length){g.innerHTML=`<div class="empty">No watches here yet.<br><span class="owner-only">Click <b>Add Watch</b> to start your vault.</span></div>`;return}
-  g.innerHTML=list.map(w=>`<article class="card">
-    <div class="photo">${w.photo?`<img src="${w.photo}" alt="${esc(w.brand+" "+w.model)}">`:`<div class="placeholder">⌚</div>`}</div>
-    <div class="cardbody">
-      <span class="badge">${w.section==="collection"?"Owned":"Dream Watch"}</span>
-      <h3>${esc(w.brand)} ${esc(w.model)}</h3>
-      <div class="ref">${w.ref?`Ref. ${esc(w.ref)}`:"No reference entered"}</div>
-      <div class="price">${money(w.price)}</div>
-      <div class="notes">${esc(w.notes||"")}</div>
-      <div class="cardactions owner-only">
-        <button class="btn" onclick="editWatch('${w.id}')">Edit</button>
-        <button class="btn" onclick="moveWatch('${w.id}')">${w.section==="collection"?"Move to Dreams":"Mark Owned"}</button>
-        <button class="btn danger" onclick="deleteWatch('${w.id}')">Delete</button>
-      </div>
-    </div></article>`).join("");
-}
-function openModal(){editingId=null;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Add Watch";["fBrand","fModel","fRef","fPrice","fDate","fNotes"].forEach(id=>document.getElementById(id).value="");document.getElementById("fPhoto").value="";document.getElementById("fSection").value=activeTab==="dream"?"dream":"collection";document.getElementById("modalBack").classList.add("show")}
+function openModal(){editingId=null;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Add Watch";["fBrand","fModel","fRef","fPrice","fDate","fNotes"].forEach(id=>document.getElementById(id).value="");document.getElementById("fPhoto").value="";document.getElementById("fSection").value=activeTab==="dream"?"dream":"collection";document.getElementById("modalBack").classList.add("show")}
 function closeModal(){document.getElementById("modalBack").classList.remove("show")}
-function editWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;editingId=id;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Edit Watch";document.getElementById("fSection").value=w.section;document.getElementById("fBrand").value=w.brand||"";document.getElementById("fModel").value=w.model||"";document.getElementById("fRef").value=w.ref||"";document.getElementById("fPrice").value=w.price||"";document.getElementById("fDate").value=w.date||"";document.getElementById("fNotes").value=w.notes||"";document.getElementById("fPhoto").value="";document.getElementById("modalBack").classList.add("show")}
+function editWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;editingId=id;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Edit Watch";document.getElementById("fSection").value=w.section;document.getElementById("fBrand").value=w.brand||"";document.getElementById("fModel").value=w.model||"";document.getElementById("fRef").value=w.ref||"";document.getElementById("fPrice").value=w.price||"";document.getElementById("fDate").value=w.date||"";document.getElementById("fNotes").value=w.notes||"";document.getElementById("fPhoto").value="";document.getElementById("modalBack").classList.add("show")}
 function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
 async function saveWatch(){
   const brand=document.getElementById("fBrand").value.trim(), model=document.getElementById("fModel").value.trim();

@@ -170,7 +170,12 @@ button{cursor:pointer}
       <div class="field"><label>Section</label><select id="fSection"><option value="collection">My Collection</option><option value="dream">Dream Watches</option></select></div>
       <div class="field"><label>Brand</label><input id="fBrand" placeholder="Rolex"></div>
       <div class="field"><label>Model</label><input id="fModel" placeholder="Submariner"></div>
-      <div class="field"><label>Reference</label><input id="fRef" placeholder="126610LN"></div>
+      <div class="field"><label>Reference</label>
+<select id="fRefSelect" onchange="applyCatalogReference()" disabled>
+  <option value="">Choose a reference...</option>
+</select>
+<input id="fRef" placeholder="Or enter a reference manually" style="margin-top:7px">
+</div>
       <div class="field"><label>Price / Value ($)</label><input id="fPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
       <div class="field"><label>Date Acquired / Target Date</label><input id="fDate" type="date"></div>
       <div class="field span2"><label>Watch Photo</label><input id="fPhoto" type="file" accept="image/*"></div>
@@ -223,37 +228,150 @@ const WATCH_CATALOG={
   ]
 };
 
+
+const REFERENCE_CATALOG={
+  "Rolex":{
+    "Submariner":[
+      {ref:"124060",label:"Submariner — Oystersteel, black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m124060-0001"},
+      {ref:"126610LN",label:"Submariner Date — Oystersteel, black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126610ln-0001"},
+      {ref:"126610LV",label:"Submariner Date — Oystersteel, green bezel",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126610lv-0002"},
+      {ref:"126613LN",label:"Submariner Date — Yellow Rolesor, black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126613ln-0002"},
+      {ref:"126613LB",label:"Submariner Date — Yellow Rolesor, blue",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126613lb-0002"},
+      {ref:"126618LN",label:"Submariner Date — Yellow gold, black",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126618ln-0002"},
+      {ref:"126618LB",label:"Submariner Date — Yellow gold, blue",img:"https://media.rolex.com/image/upload/q_auto/f_auto/t_v7-cover-majesty-landscape/c_limit%2Cw_1920/v1/a677b2c664f6/catalogue/2026/upright-c/m126618lb-0002"}
+    ],
+    "Cosmograph Daytona":[
+      {ref:"126500LN",label:"Cosmograph Daytona — Oystersteel",img:CATALOG_IMAGES.rolexDaytona}
+    ],
+    "Datejust":[
+      {ref:"126334",label:"Datejust 41",img:CATALOG_IMAGES.rolexDate}
+    ],
+    "GMT-Master II":[
+      {ref:"126710BLNR",label:"GMT-Master II — Oystersteel",img:CATALOG_IMAGES.rolexGMT}
+    ]
+  },
+  "Audemars Piguet":{
+    "Royal Oak":[
+      {ref:"15510ST",label:"Royal Oak Selfwinding 41 mm",img:CATALOG_IMAGES.apRoyalOak},
+      {ref:"16202ST",label:"Royal Oak Jumbo Extra-Thin",img:CATALOG_IMAGES.apRoyalOak}
+    ],
+    "Royal Oak Offshore":[
+      {ref:"26420SO",label:"Royal Oak Offshore Selfwinding Chronograph",img:CATALOG_IMAGES.apOffshore}
+    ],
+    "Code 11.59":[
+      {ref:"15210ST",label:"Code 11.59 Selfwinding",img:CATALOG_IMAGES.apCode}
+    ]
+  },
+  "Patek Philippe":{
+    "Nautilus":[
+      {ref:"5811/1G-001",label:"Nautilus — white gold",img:CATALOG_IMAGES.patekNautilus},
+      {ref:"5712/1R-001",label:"Nautilus — rose gold",img:CATALOG_IMAGES.patekNautilus},
+      {ref:"5990/1R-001",label:"Nautilus Travel Time Chronograph",img:CATALOG_IMAGES.patekNautilus},
+      {ref:"5740/1G-001",label:"Nautilus Perpetual Calendar",img:CATALOG_IMAGES.patekNautilus}
+    ],
+    "Aquanaut":[
+      {ref:"5167A-001",label:"Aquanaut — steel",img:CATALOG_IMAGES.patekAquanaut}
+    ],
+    "Calatrava":[
+      {ref:"6119G-001",label:"Calatrava",img:CATALOG_IMAGES.patekCalatrava}
+    ]
+  }
+};
+
 let selectedCatalogPhoto="";
 
 function populateCatalogModels(){
   const brand=document.getElementById("catalogBrand").value;
   const modelSel=document.getElementById("catalogModel");
+  const refSel=document.getElementById("fRefSelect");
+
   modelSel.innerHTML='<option value="">Choose a model...</option>';
+  refSel.innerHTML='<option value="">Choose a reference...</option>';
+  refSel.disabled=true;
+
   selectedCatalogPhoto="";
   document.getElementById("catalogPreview").style.display="none";
-  if(!brand||!WATCH_CATALOG[brand]){modelSel.disabled=true;return}
+  document.getElementById("fBrand").value="";
+  document.getElementById("fModel").value="";
+  document.getElementById("fRef").value="";
+
+  if(!brand||!WATCH_CATALOG[brand]){
+    modelSel.disabled=true;
+    return;
+  }
+
   WATCH_CATALOG[brand].forEach(([model,key])=>{
     const o=document.createElement("option");
-    o.value=model; o.dataset.imageKey=key; o.textContent=model; modelSel.appendChild(o);
+    o.value=model;
+    o.dataset.imageKey=key;
+    o.textContent=model;
+    modelSel.appendChild(o);
   });
+
   modelSel.disabled=false;
 }
 
 function applyCatalogModel(){
   const brand=document.getElementById("catalogBrand").value;
   const modelSel=document.getElementById("catalogModel");
-  const opt=modelSel.options[modelSel.selectedIndex];
   const model=modelSel.value;
-  if(!brand||!model||!opt){document.getElementById("catalogPreview").style.display="none";return}
-  const imageKey=opt.dataset.imageKey;
-  selectedCatalogPhoto=CATALOG_IMAGES[imageKey]||"";
+  const refSel=document.getElementById("fRefSelect");
+
   document.getElementById("fBrand").value=brand;
   document.getElementById("fModel").value=model;
-  document.getElementById("catalogPreviewTitle").textContent=brand+" "+model;
+  document.getElementById("fRef").value="";
+
+  refSel.innerHTML='<option value="">Choose a reference...</option>';
+  const refs=(REFERENCE_CATALOG[brand]&&REFERENCE_CATALOG[brand][model])||[];
+
+  if(refs.length){
+    refs.forEach((r,i)=>{
+      const o=document.createElement("option");
+      o.value=String(i);
+      o.textContent=r.ref+" — "+r.label;
+      refSel.appendChild(o);
+    });
+    refSel.disabled=false;
+  }else{
+    refSel.disabled=true;
+  }
+
+  const selectedOption=modelSel.options[modelSel.selectedIndex];
+  const imageKey=selectedOption&&selectedOption.dataset?selectedOption.dataset.imageKey:"";
+  selectedCatalogPhoto=CATALOG_IMAGES[imageKey]||"";
+
+  if(model){
+    document.getElementById("catalogPreviewTitle").textContent=brand+" "+model;
+    const img=document.getElementById("catalogPreviewImage");
+    img.src=selectedCatalogPhoto;
+    img.style.display=selectedCatalogPhoto?"block":"none";
+    img.onerror=()=>{img.style.display="none"};
+    document.getElementById("catalogPreview").style.display="grid";
+  }else{
+    document.getElementById("catalogPreview").style.display="none";
+  }
+}
+
+function applyCatalogReference(){
+  const brand=document.getElementById("catalogBrand").value;
+  const model=document.getElementById("catalogModel").value;
+  const refSel=document.getElementById("fRefSelect");
+  const idx=refSel.value;
+
+  if(idx==="") return;
+
+  const refs=(REFERENCE_CATALOG[brand]&&REFERENCE_CATALOG[brand][model])||[];
+  const r=refs[Number(idx)];
+  if(!r) return;
+
+  document.getElementById("fRef").value=r.ref;
+  selectedCatalogPhoto=r.img||selectedCatalogPhoto;
+
+  document.getElementById("catalogPreviewTitle").textContent=brand+" "+model+" — "+r.ref;
   const img=document.getElementById("catalogPreviewImage");
   img.src=selectedCatalogPhoto;
+  img.style.display=selectedCatalogPhoto?"block":"none";
   img.onerror=()=>{img.style.display="none"};
-  img.onload=()=>{img.style.display="block"};
   document.getElementById("catalogPreview").style.display="grid";
 }
 
@@ -297,9 +415,9 @@ function render(){
       </div>
     </div></article>`).join("");
 }
-function openModal(){editingId=null;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Add Watch";["fBrand","fModel","fRef","fPrice","fDate","fNotes"].forEach(id=>document.getElementById(id).value="");document.getElementById("fPhoto").value="";document.getElementById("fSection").value=activeTab==="dream"?"dream":"collection";document.getElementById("modalBack").classList.add("show")}
+function openModal(){editingId=null;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Add Watch";["fBrand","fModel","fRef","fPrice","fDate","fNotes"].forEach(id=>document.getElementById(id).value="");document.getElementById("fPhoto").value="";document.getElementById("fSection").value=activeTab==="dream"?"dream":"collection";document.getElementById("modalBack").classList.add("show")}
 function closeModal(){document.getElementById("modalBack").classList.remove("show")}
-function editWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;editingId=id;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Edit Watch";document.getElementById("fSection").value=w.section;document.getElementById("fBrand").value=w.brand||"";document.getElementById("fModel").value=w.model||"";document.getElementById("fRef").value=w.ref||"";document.getElementById("fPrice").value=w.price||"";document.getElementById("fDate").value=w.date||"";document.getElementById("fNotes").value=w.notes||"";document.getElementById("fPhoto").value="";document.getElementById("modalBack").classList.add("show")}
+function editWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;editingId=id;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Edit Watch";document.getElementById("fSection").value=w.section;document.getElementById("fBrand").value=w.brand||"";document.getElementById("fModel").value=w.model||"";document.getElementById("fRef").value=w.ref||"";document.getElementById("fPrice").value=w.price||"";document.getElementById("fDate").value=w.date||"";document.getElementById("fNotes").value=w.notes||"";document.getElementById("fPhoto").value="";document.getElementById("modalBack").classList.add("show")}
 function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
 async function saveWatch(){
   const brand=document.getElementById("fBrand").value.trim(), model=document.getElementById("fModel").value.trim();

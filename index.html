@@ -152,6 +152,7 @@ button{cursor:pointer}
 const DATA_FILE="watch-vault-data.json";
 const GRAPH_SCOPE="Files.ReadWrite.AppFolder";
 const CLIENT_ID="21bd0739-b841-4a39-97ef-9b05c3c7be8f";
+const REDIRECT_URI="https://chadhcobb99.github.io/my-watch-vault/";
 let msalInstance=null, graphAccount=null, cloudReady=false, editingId=null, activeTab="collection";
 let vault={watches:[]};
 
@@ -214,11 +215,11 @@ function openShareView(){
   const u=new URL(location.href);u.searchParams.set("view","1");window.open(u.toString(),"_blank");
 }
 
-const msalConfig={auth:{clientId:CLIENT_ID,authority:"https://login.microsoftonline.com/consumers",redirectUri:location.origin+"/"},cache:{cacheLocation:"localStorage",storeAuthStateInCookie:false}};
+const msalConfig={auth:{clientId:CLIENT_ID,authority:"https://login.microsoftonline.com/consumers",redirectUri:REDIRECT_URI},cache:{cacheLocation:"localStorage",storeAuthStateInCookie:false}};
 function initMSAL(){if(typeof msal==="undefined")return false;msalInstance=new msal.PublicClientApplication(msalConfig);const a=msalInstance.getAllAccounts();if(a.length){graphAccount=a[0];msalInstance.setActiveAccount(graphAccount)}return true}
-async function login(){await msalInstance.loginRedirect({scopes:[GRAPH_SCOPE],redirectUri:location.origin+"/"})}
-async function logout(){const a=graphAccount||msalInstance.getActiveAccount()||msalInstance.getAllAccounts()[0];await msalInstance.logoutRedirect({account:a||undefined,postLogoutRedirectUri:location.origin+"/"})}
-async function token(){const a=graphAccount||msalInstance.getActiveAccount()||msalInstance.getAllAccounts()[0];if(!a)throw new Error("No Microsoft account signed in.");try{return (await msalInstance.acquireTokenSilent({scopes:[GRAPH_SCOPE],account:a})).accessToken}catch(e){await msalInstance.acquireTokenRedirect({scopes:[GRAPH_SCOPE],account:a,redirectUri:location.origin+"/"});throw e}}
+async function login(){await msalInstance.loginRedirect({scopes:[GRAPH_SCOPE],redirectUri:REDIRECT_URI})}
+async function logout(){const a=graphAccount||msalInstance.getActiveAccount()||msalInstance.getAllAccounts()[0];await msalInstance.logoutRedirect({account:a||undefined,postLogoutRedirectUri:REDIRECT_URI})}
+async function token(){const a=graphAccount||msalInstance.getActiveAccount()||msalInstance.getAllAccounts()[0];if(!a)throw new Error("No Microsoft account signed in.");try{return (await msalInstance.acquireTokenSilent({scopes:[GRAPH_SCOPE],account:a})).accessToken}catch(e){await msalInstance.acquireTokenRedirect({scopes:[GRAPH_SCOPE],account:a,redirectUri:REDIRECT_URI});throw e}}
 async function loadCloud(){
   try{
     document.getElementById("cloudStatus").textContent="Connecting to OneDrive...";

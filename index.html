@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Watch Vault — V3.13</title>
+<title>My Watch Vault — V3.14</title>
 
 <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
 
@@ -231,6 +231,7 @@ const EXACT_MODEL_IMAGES={
   "Oyster Perpetual 41 — Tiffany / Turquoise Blue":"watch-images/rolex-op41-tiffany.png",
   "Oyster Perpetual 41 — Green Dial":"watch-images/rolex-op41-green.png",
   "Datejust 41 — Mint Green Jubilee":"watch-images/rolex-datejust41-mint.png",
+  "Datejust 41 — Everose Rolesor Chocolate Oyster":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126331-0001",
   "GMT-Master II — Batman (BLNR Oyster)":"watch-images/rolex-gmt-batman-oyster.png",
   "GMT-Master II — Batgirl (BLNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0002",
 
@@ -317,6 +318,9 @@ function exactModelImage(w){
   if(lower.includes("datejust 41") && lower.includes("mint"))
     return EXACT_MODEL_IMAGES["Datejust 41 — Mint Green Jubilee"];
 
+  if(lower.includes("datejust 41") && lower.includes("chocolate") && (lower.includes("everose") || lower.includes("rose gold")))
+    return EXACT_MODEL_IMAGES["Datejust 41 — Everose Rolesor Chocolate Oyster"];
+
   if(lower.includes("aquanaut") && (lower.includes("army green") || lower.includes("khaki green")))
     return EXACT_MODEL_IMAGES["Aquanaut Army Green — Green Strap"];
 
@@ -331,6 +335,7 @@ const WATCH_CATALOG={
     ["Datejust 36","rolexDate"],
     ["Datejust 41","rolexDate"],
     ["Datejust 41 — Mint Green Jubilee","rolexDate"],
+    ["Datejust 41 — Everose Rolesor Chocolate Oyster","rolexDate"],
     ["Lady-Datejust 28","rolexDate"],
     ["Day-Date 36","rolexDate"],
     ["Day-Date 40","rolexDate"],
@@ -491,6 +496,9 @@ function getReferenceList(brand,model){
       ],
       "Datejust 41 — Mint Green Jubilee":[
         {ref:"126334",label:"Datejust 41 — mint green dial, fluted bezel, Jubilee bracelet",img:EXACT_MODEL_IMAGES["Datejust 41 — Mint Green Jubilee"]}
+      ],
+      "Datejust 41 — Everose Rolesor Chocolate Oyster":[
+        {ref:"126331",label:"Datejust 41 — Everose Rolesor, chocolate dial, fluted bezel, Oyster bracelet",img:EXACT_MODEL_IMAGES["Datejust 41 — Everose Rolesor Chocolate Oyster"]}
       ],
       "GMT-Master II — Batman (BLNR Oyster)":[
         {ref:"126710BLNR",label:"Batman — Oyster bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Batman (BLNR Oyster)"]}
@@ -772,6 +780,7 @@ function getWatchDetails(w){
 
   const map={
     "126334":{size:"41mm",material:"Oystersteel / White Gold",dial:"Blue / Multiple",bezel:"Fluted",bracelet:"Jubilee / Oyster"},
+    "126331":{size:"41mm",material:"Oystersteel / Everose Gold",dial:"Chocolate",bezel:"Fluted",bracelet:"Oyster"},
     "126300":{size:"41mm",material:"Oystersteel",dial:"Multiple",bezel:"Smooth",bracelet:"Jubilee / Oyster"},
     "126710BLNR":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Black / Blue Cerachrom",bracelet:"Jubilee / Oyster"},
     "126713GRNR":{size:"40mm",material:"Yellow Rolesor",dial:"Black",bezel:"Grey / Black Cerachrom",bracelet:"Jubilee"},

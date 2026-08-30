@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Watch Vault — V3.12</title>
+<title>My Watch Vault — V3.13</title>
 
 <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
 
@@ -49,6 +49,10 @@ button{cursor:pointer}
 .toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:13px 15px;margin-bottom:16px;box-shadow:var(--shadow)}
 .tabs{display:flex;gap:8px;flex-wrap:wrap}
 .tab.active{background:var(--green);color:white;border-color:var(--green)}
+.tab-count{display:inline-grid;place-items:center;min-width:25px;height:22px;padding:0 7px;margin-left:6px;border-radius:999px;background:rgba(200,164,77,.16);border:1px solid rgba(200,164,77,.38);color:var(--gold2);font-size:.75rem;font-weight:900;line-height:1}
+.tab.active .tab-count{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.28);color:white}
+.rank-badge{display:inline-flex;align-items:center;gap:5px;margin-left:7px;padding:4px 8px;border-radius:999px;background:rgba(200,164,77,.13);border:1px solid rgba(200,164,77,.42);color:var(--gold2);font-size:.72rem;font-weight:900;vertical-align:middle}
+
 .search{max-width:330px;width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text)}
 .section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px;box-shadow:var(--shadow)}
 .sectionhead{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:14px}
@@ -129,9 +133,9 @@ button{cursor:pointer}
 
   <section class="toolbar">
     <div class="tabs">
-      <button class="btn tab active" data-tab="collection" onclick="setTab('collection')">⌚ My Collection</button>
-      <button class="btn tab" data-tab="dream" onclick="setTab('dream')">✨ Dream Watches</button>
-      <button class="btn tab" data-tab="all" onclick="setTab('all')">All Watches</button>
+      <button class="btn tab active" data-tab="collection" onclick="setTab('collection')">⌚ My Collection <span id="collectionTabCount" class="tab-count">0</span></button>
+      <button class="btn tab" data-tab="dream" onclick="setTab('dream')">✨ Dream Watches <span id="dreamTabCount" class="tab-count">0</span></button>
+      <button class="btn tab" data-tab="all" onclick="setTab('all')">All Watches <span id="allTabCount" class="tab-count">0</span></button>
     </div>
     <input id="search" class="search" placeholder="Search brand, model, reference..." oninput="render()">
   </section>
@@ -188,6 +192,8 @@ button{cursor:pointer}
 </div>
       <div class="field"><label>Price / Value ($)</label><input id="fPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
       <div class="field"><label>Date Acquired / Target Date</label><input id="fDate" type="date"></div>
+      <div class="field"><label>Love Rank</label><input id="fRank" type="number" min="1" step="1" placeholder="1 = favorite"></div>
+      <div class="field"><label>Ranking</label><input value="Lower number = higher rank" disabled></div>
       <div class="field span2"><label>Watch Photo</label><input id="fPhoto" type="file" accept="image/*"></div>
       <div class="field span2"><label>Notes</label><textarea id="fNotes" placeholder="Condition, dial, bracelet, seller, why I want it..."></textarea></div>
     </div>
@@ -846,14 +852,50 @@ function displayReference(w){
   return "";
 }
 
+
+function normalizeRank(v){
+  const n=parseInt(v,10);
+  return Number.isFinite(n)&&n>0?n:null;
+}
+
+function rankSort(a,b){
+  const ar=normalizeRank(a.rank);
+  const br=normalizeRank(b.rank);
+
+  if(ar!==null && br!==null && ar!==br) return ar-br;
+  if(ar!==null && br===null) return -1;
+  if(ar===null && br!==null) return 1;
+
+  const ab=(a.brand||"")+" "+(a.model||"");
+  const bb=(b.brand||"")+" "+(b.model||"");
+  return ab.localeCompare(bb);
+}
+
+function updateTabCounts(){
+  const owned=vault.watches.filter(w=>w.section==="collection").length;
+  const dream=vault.watches.filter(w=>w.section==="dream").length;
+  const all=vault.watches.length;
+
+  const c=document.getElementById("collectionTabCount");
+  const d=document.getElementById("dreamTabCount");
+  const a=document.getElementById("allTabCount");
+
+  if(c) c.textContent=owned;
+  if(d) d.textContent=dream;
+  if(a) a.textContent=all;
+}
+
 function render(){
+  updateTabCounts();
   const q=document.getElementById("search").value.trim().toLowerCase();
   const owned=vault.watches.filter(w=>w.section==="collection"), dream=vault.watches.filter(w=>w.section==="dream");
   document.getElementById("ownedCount").textContent=owned.length;
   document.getElementById("dreamCount").textContent=dream.length;
   document.getElementById("ownedValue").textContent=money(owned.reduce((s,w)=>s+(Number(w.price)||0),0));
   document.getElementById("dreamValue").textContent=money(dream.reduce((s,w)=>s+(Number(w.price)||0),0));
-  let list=vault.watches.filter(w=>(activeTab==="all"||w.section===activeTab)&&(`${w.brand} ${w.model} ${w.ref} ${w.notes}`.toLowerCase().includes(q)));
+  let list=vault.watches
+    .filter(w=>(activeTab==="all"||w.section===activeTab)&&(`${w.brand} ${w.model} ${w.ref} ${w.rank||""} ${w.notes}`.toLowerCase().includes(q)))
+    .sort(rankSort);
   const g=document.getElementById("watchGrid");
   if(!list.length){
     g.innerHTML=`<div class="empty">${viewerMode?"No shared watches are published yet.":"No watches here yet."}<br><span class="owner-only">Click <b>Add Watch</b> to start your vault.</span></div>`;
@@ -863,6 +905,7 @@ function render(){
     <div class="photo">${repairCatalogPhoto(w)?`<img class="${photoClass(w)}" src="${repairCatalogPhoto(w)}" alt="${esc(w.brand+" "+w.model)}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>⌚</div>'">`:`<div class="placeholder">⌚</div>`}</div>
     <div class="cardbody">
       <span class="badge">${w.section==="collection"?"Owned":"Dream Watch"}</span>
+      ${normalizeRank(w.rank)!==null?`<span class="rank-badge">♥ Rank #${normalizeRank(w.rank)}</span>`:""}
       <h3>${esc(w.brand)} ${esc(w.model)}</h3>
       <div class="ref">${displayReference(w)?`Ref. ${esc(displayReference(w))}`:"No reference entered"}</div>
       ${renderWatchSpecs(w)}
@@ -875,16 +918,17 @@ function render(){
       </div>
     </div></article>`).join("");
 }
-function openModal(){editingId=null;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Add Watch";["fBrand","fModel","fRef","fPrice","fDate","fNotes"].forEach(id=>document.getElementById(id).value="");document.getElementById("fPhoto").value="";document.getElementById("fSection").value=activeTab==="dream"?"dream":"collection";document.getElementById("modalBack").classList.add("show")}
+function openModal(){editingId=null;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Add Watch";["fBrand","fModel","fRef","fPrice","fDate","fRank","fNotes"].forEach(id=>document.getElementById(id).value="");document.getElementById("fPhoto").value="";document.getElementById("fSection").value=activeTab==="dream"?"dream":"collection";document.getElementById("modalBack").classList.add("show")}
 function closeModal(){document.getElementById("modalBack").classList.remove("show")}
-function editWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;editingId=id;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Edit Watch";document.getElementById("fSection").value=w.section;document.getElementById("fBrand").value=w.brand||"";document.getElementById("fModel").value=w.model||"";document.getElementById("fRef").value=w.ref||"";document.getElementById("fPrice").value=w.price||"";document.getElementById("fDate").value=w.date||"";document.getElementById("fNotes").value=w.notes||"";document.getElementById("fPhoto").value="";document.getElementById("modalBack").classList.add("show")}
+function editWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;editingId=id;selectedCatalogPhoto="";document.getElementById("catalogBrand").value="";document.getElementById("catalogModel").innerHTML='<option value="">Choose a model...</option>';document.getElementById("catalogModel").disabled=true;document.getElementById("fRefSelect").innerHTML='<option value="">Choose a reference...</option>';document.getElementById("fRefSelect").disabled=true;document.getElementById("catalogPreview").style.display="none";document.getElementById("modalTitle").textContent="Edit Watch";document.getElementById("fSection").value=w.section;document.getElementById("fBrand").value=w.brand||"";document.getElementById("fModel").value=w.model||"";document.getElementById("fRef").value=w.ref||"";document.getElementById("fPrice").value=w.price||"";document.getElementById("fDate").value=w.date||"";document.getElementById("fRank").value=w.rank||"";document.getElementById("fNotes").value=w.notes||"";document.getElementById("fPhoto").value="";document.getElementById("modalBack").classList.add("show")}
 function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
 async function saveWatch(){
   const brand=document.getElementById("fBrand").value.trim(), model=document.getElementById("fModel").value.trim();
   if(!brand||!model){alert("Please enter the brand and model.");return}
   let old=editingId?vault.watches.find(x=>x.id===editingId):null, photo=selectedCatalogPhoto||(old?.photo||"");
   const file=document.getElementById("fPhoto").files[0]; if(file) photo=await fileToDataURL(file);
-  const w={id:editingId||String(Date.now()),section:document.getElementById("fSection").value,brand,model,ref:document.getElementById("fRef").value.trim(),price:Number(document.getElementById("fPrice").value)||0,date:document.getElementById("fDate").value,notes:document.getElementById("fNotes").value.trim(),photo};
+  const rankValue=parseInt(document.getElementById("fRank").value,10);
+  const w={id:editingId||String(Date.now()),section:document.getElementById("fSection").value,brand,model,ref:document.getElementById("fRef").value.trim(),price:Number(document.getElementById("fPrice").value)||0,date:document.getElementById("fDate").value,rank:Number.isFinite(rankValue)&&rankValue>0?rankValue:null,notes:document.getElementById("fNotes").value.trim(),photo};
   if(editingId) vault.watches=vault.watches.map(x=>x.id===editingId?w:x); else vault.watches.unshift(w);
   closeModal();render();await saveCloud();
 }

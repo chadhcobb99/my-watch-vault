@@ -211,11 +211,15 @@ const CATALOG_IMAGES={
 
 
 const EXACT_MODEL_IMAGES={
+  "GMT-Master II — Zombie (GRNR Yellow Rolesor)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126713grnr-0001",
+  "Oyster Perpetual 41 — Tiffany / Turquoise Blue":"https://content.rolex.com/dam/2022-11/upright-bba-with-shadow/m124300-0006.png",
+  "Oyster Perpetual 41 — Green Dial":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m134300-0004",
+  "Datejust 41 — Mint Green Jubilee":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126334-0028",
   "GMT-Master II — Batman (BLNR Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0003",
   "GMT-Master II — Batgirl (BLNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0002",
 
-  "GMT-Master II — Pepsi (BLRO Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0003",
-  "GMT-Master II — Pepsi (BLRO Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0002",
+  "GMT-Master II — Pepsi (BLRO Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0002",
+  "GMT-Master II — Pepsi (BLRO Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0001",
 
   "GMT-Master II — Sprite (VTNR Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0001",
   "GMT-Master II — Sprite (VTNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0002",
@@ -279,6 +283,18 @@ function exactModelImage(w){
   if(lower.includes("starbucks"))
     return EXACT_MODEL_IMAGES["Submariner Date — Starbucks (LV)"];
 
+  if(lower.includes("zombie") || (lower.includes("126713grnr")))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Zombie (GRNR Yellow Rolesor)"];
+
+  if(lower.includes("tiffany") || lower.includes("turquoise"))
+    return EXACT_MODEL_IMAGES["Oyster Perpetual 41 — Tiffany / Turquoise Blue"];
+
+  if(lower.includes("oyster perpetual 41") && lower.includes("green"))
+    return EXACT_MODEL_IMAGES["Oyster Perpetual 41 — Green Dial"];
+
+  if(lower.includes("datejust 41") && lower.includes("mint"))
+    return EXACT_MODEL_IMAGES["Datejust 41 — Mint Green Jubilee"];
+
   return "";
 }
 
@@ -289,6 +305,7 @@ const WATCH_CATALOG={
     ["Datejust 31","rolexDate"],
     ["Datejust 36","rolexDate"],
     ["Datejust 41","rolexDate"],
+    ["Datejust 41 — Mint Green Jubilee","rolexDate"],
     ["Lady-Datejust 28","rolexDate"],
     ["Day-Date 36","rolexDate"],
     ["Day-Date 40","rolexDate"],
@@ -306,6 +323,7 @@ const WATCH_CATALOG={
     ["GMT-Master II — Bruce Wayne (GRNR Oyster)","rolexGMT"],
     ["GMT-Master II — Bruce Wayne (GRNR Jubilee)","rolexGMT"],
     ["GMT-Master II — Root Beer (CHNR Rolesor)","rolexGMT"],
+    ["GMT-Master II — Zombie (GRNR Yellow Rolesor)","rolexGMT"],
     ["GMT-Master II — Root Beer (CHNR Everose Gold)","rolexGMT"],
     ["GMT-Master II — GRNR Yellow Rolesor","rolexGMT"],
     ["GMT-Master II — GRNR Yellow Gold","rolexGMT"],
@@ -319,6 +337,8 @@ const WATCH_CATALOG={
     ["Oyster Perpetual 34","rolexDate"],
     ["Oyster Perpetual 36","rolexDate"],
     ["Oyster Perpetual 41","rolexDate"],
+    ["Oyster Perpetual 41 — Tiffany / Turquoise Blue","rolexDate"],
+    ["Oyster Perpetual 41 — Green Dial","rolexDate"],
     ["Sea-Dweller 43","rolexSub"],
     ["Sky-Dweller 42","rolexGMT"],
 
@@ -434,6 +454,18 @@ function getReferenceList(brand,model){
 
   if(brand==="Rolex"){
     const rolexSpecial={
+      "GMT-Master II — Zombie (GRNR Yellow Rolesor)":[
+        {ref:"126713GRNR",label:"Zombie — Yellow Rolesor, Jubilee, grey/black bezel",img:EXACT_MODEL_IMAGES["GMT-Master II — Zombie (GRNR Yellow Rolesor)"]}
+      ],
+      "Oyster Perpetual 41 — Tiffany / Turquoise Blue":[
+        {ref:"124300",label:"Oyster Perpetual 41 — turquoise blue dial, Oyster bracelet",img:EXACT_MODEL_IMAGES["Oyster Perpetual 41 — Tiffany / Turquoise Blue"]}
+      ],
+      "Oyster Perpetual 41 — Green Dial":[
+        {ref:"134300",label:"Oyster Perpetual 41 — green dial, Oyster bracelet",img:EXACT_MODEL_IMAGES["Oyster Perpetual 41 — Green Dial"]}
+      ],
+      "Datejust 41 — Mint Green Jubilee":[
+        {ref:"126334",label:"Datejust 41 — mint green dial, fluted bezel, Jubilee bracelet",img:EXACT_MODEL_IMAGES["Datejust 41 — Mint Green Jubilee"]}
+      ],
       "GMT-Master II — Batman (BLNR Oyster)":[
         {ref:"126710BLNR",label:"Batman — Oyster bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Batman (BLNR Oyster)"]}
       ],
@@ -441,10 +473,10 @@ function getReferenceList(brand,model){
         {ref:"126710BLNR",label:"Batgirl — Jubilee bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Batgirl (BLNR Jubilee)"]}
       ],
       "GMT-Master II — Pepsi (BLRO Oyster)":[
-        {ref:"126710BLRO",label:"Pepsi — Oyster bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0003"}
+        {ref:"126710BLRO",label:"Pepsi — Oyster bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Pepsi (BLRO Oyster)"]}
       ],
       "GMT-Master II — Pepsi (BLRO Jubilee)":[
-        {ref:"126710BLRO",label:"Pepsi — Jubilee bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0002"}
+        {ref:"126710BLRO",label:"Pepsi — Jubilee bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Pepsi (BLRO Jubilee)"]}
       ],
       "GMT-Master II — Sprite (VTNR Oyster)":[
         {ref:"126720VTNR",label:"Sprite — Oyster bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0001"}
@@ -693,6 +725,9 @@ function getWatchDetails(w){
     "126334":{size:"41mm",material:"Oystersteel / White Gold",dial:"Blue / Multiple",bezel:"Fluted",bracelet:"Jubilee / Oyster"},
     "126300":{size:"41mm",material:"Oystersteel",dial:"Multiple",bezel:"Smooth",bracelet:"Jubilee / Oyster"},
     "126710BLNR":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Black / Blue Cerachrom",bracelet:"Jubilee / Oyster"},
+    "126713GRNR":{size:"40mm",material:"Yellow Rolesor",dial:"Black",bezel:"Grey / Black Cerachrom",bracelet:"Jubilee"},
+    "124300":{size:"41mm",material:"Oystersteel",dial:"Turquoise Blue",bezel:"Domed",bracelet:"Oyster"},
+    "134300":{size:"41mm",material:"Oystersteel",dial:"Green",bezel:"Domed",bracelet:"Oyster"},
     "126710BLRO":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Red / Blue Cerachrom",bracelet:"Jubilee / Oyster"},
     "126720VTNR":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Green / Black Cerachrom",bracelet:"Jubilee / Oyster"},
     "126710GRNR":{size:"40mm",material:"Oystersteel",dial:"Black",bezel:"Grey / Black Cerachrom",bracelet:"Jubilee / Oyster"},
@@ -738,6 +773,10 @@ function renderWatchSpecs(w){
   if(model.includes("batman") || (model.includes("oyster") && model.includes("blnr"))) dd.bracelet="Oyster";
   if(model.includes("root beer")) dd.bracelet="Oyster";
   if(model.includes("bluesy") || model.includes("starbucks")) dd.bracelet="Oyster";
+  if(model.includes("zombie")){dd.bracelet="Jubilee";dd.material="Yellow Rolesor";dd.bezel="Grey / Black Cerachrom";}
+  if(model.includes("tiffany") || model.includes("turquoise")){dd.dial="Turquoise Blue";dd.bracelet="Oyster";dd.bezel="Domed";}
+  if(model.includes("oyster perpetual 41") && model.includes("green")){dd.dial="Green";dd.bracelet="Oyster";dd.bezel="Domed";}
+  if(model.includes("datejust 41") && model.includes("mint")){dd.dial="Mint Green";dd.bracelet="Jubilee";dd.bezel="Fluted";}
   return `<div class="specs">
     ${dd.size?`<span>⌚ ${esc(dd.size)}</span>`:""}
     ${dd.material?`<span>◈ ${esc(dd.material)}</span>`:""}
@@ -755,6 +794,10 @@ function displayReference(w){
   if(model.includes("root beer") && model.includes("rolesor")) return "126711CHNR";
   if(model.includes("bluesy")) return "126613LB";
   if(model.includes("starbucks")) return "126610LV";
+  if(model.includes("zombie")) return "126713GRNR";
+  if(model.includes("tiffany") || model.includes("turquoise")) return "124300";
+  if(model.includes("oyster perpetual 41") && model.includes("green")) return "134300";
+  if(model.includes("datejust 41") && model.includes("mint")) return "126334";
   return "";
 }
 
@@ -799,9 +842,63 @@ async function saveWatch(){
 }
 async function deleteWatch(id){if(!confirm("Delete this watch?"))return;vault.watches=vault.watches.filter(w=>w.id!==id);render();await saveCloud()}
 async function moveWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;w.section=w.section==="collection"?"dream":"collection";render();await saveCloud()}
+function base64UrlEncode(str){
+  const bytes=new TextEncoder().encode(str);
+  let binary="";
+  bytes.forEach(b=>binary+=String.fromCharCode(b));
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+}
+
+function base64UrlDecode(str){
+  let s=str.replace(/-/g,"+").replace(/_/g,"/");
+  while(s.length%4) s+="=";
+  const binary=atob(s);
+  const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+function createShareSnapshot(){
+  return {
+    watches:vault.watches.map(w=>{
+      const copy={...w};
+      // For catalog watches, use the exact resolved remote image so shared links stay compact.
+      const resolved=repairCatalogPhoto(w);
+      if(resolved && !String(resolved).startsWith("data:")) copy.photo=resolved;
+      // Personal uploaded base64 photos can make a share URL enormous.
+      // Keep small ones; omit very large ones rather than breaking the share link.
+      if(String(copy.photo||"").startsWith("data:") && String(copy.photo).length>120000) copy.photo="";
+      return copy;
+    })
+  };
+}
+
 function openShareView(){
-  // Read-only preview. For a true public live link, the hosting layer must publish a read-only data snapshot.
-  const u=new URL(location.href);u.searchParams.set("view","1");window.open(u.toString(),"_blank");
+  try{
+    const snapshot=createShareSnapshot();
+    const encoded=base64UrlEncode(JSON.stringify(snapshot));
+    const u=new URL(location.href);
+    u.searchParams.set("view","1");
+    u.hash="share="+encoded;
+    window.open(u.toString(),"_blank");
+  }catch(e){
+    console.error("Share View error:",e);
+    alert("Could not create the Share View link. Please try again.");
+  }
+}
+
+function loadSharedSnapshot(){
+  try{
+    const hash=location.hash.startsWith("#share=")?location.hash.slice(7):"";
+    if(!hash) return false;
+    const data=JSON.parse(base64UrlDecode(hash));
+    if(data && Array.isArray(data.watches)){
+      vault={watches:data.watches};
+      return true;
+    }
+  }catch(e){
+    console.error("Shared snapshot could not be loaded:",e);
+  }
+  return false;
 }
 
 const msalConfig={auth:{clientId:CLIENT_ID,authority:"https://login.microsoftonline.com/consumers",redirectUri:REDIRECT_URI},cache:{cacheLocation:"localStorage",storeAuthStateInCookie:false}};
@@ -824,8 +921,12 @@ async function saveCloud(){
   try{const t=await token(),r=await fetch(`https://graph.microsoft.com/v1.0/me/drive/special/approot:/${DATA_FILE}:/content`,{method:"PUT",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(vault)});if(!r.ok)throw new Error("Save failed");document.getElementById("cloudStatus").textContent="Saved to OneDrive ✓"}catch(e){document.getElementById("cloudStatus").textContent="OneDrive save failed"}
 }
 async function start(){
+  if(viewerMode){
+    loadSharedSnapshot();
+    render();
+    return;
+  }
   render();
-  if(viewerMode)return;
   if(!initMSAL()){document.getElementById("cloudStatus").textContent="Microsoft authentication library failed to load.";return}
   try{
     const result=await msalInstance.handleRedirectPromise();

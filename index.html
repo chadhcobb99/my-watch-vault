@@ -209,6 +209,79 @@ const CATALOG_IMAGES={
   patekCalatrava:"https://patek-res.cloudinary.com/dfsmedia/0906caea301d42b3b8bd23bd656d1711/202100-51887"
 };
 
+
+const EXACT_MODEL_IMAGES={
+  "GMT-Master II — Batman (BLNR Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0003",
+  "GMT-Master II — Batgirl (BLNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0002",
+
+  "GMT-Master II — Pepsi (BLRO Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0003",
+  "GMT-Master II — Pepsi (BLRO Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0002",
+
+  "GMT-Master II — Sprite (VTNR Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0001",
+  "GMT-Master II — Sprite (VTNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0002",
+
+  "GMT-Master II — Bruce Wayne (GRNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710grnr-0003",
+  "GMT-Master II — Bruce Wayne (GRNR Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710grnr-0004",
+
+  "GMT-Master II — Root Beer (CHNR Rolesor)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126711chnr-0002",
+  "GMT-Master II — Root Beer (CHNR Everose Gold)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126715chnr-0002",
+
+  "Submariner 41 — No Date":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m124060-0001",
+  "Submariner Date — Black (LN)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126610ln-0001",
+  "Submariner Date — Starbucks (LV)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126610lv-0002",
+  "Submariner Date — Bluesy (LB)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126613lb-0002",
+  "Submariner Date — Black Rolesor (LN)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126613ln-0002",
+  "Submariner Date — Yellow Gold Black (LN)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126618ln-0002",
+  "Submariner Date — Yellow Gold Blue (LB)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126618lb-0002",
+
+  "Rolex Datejust 41":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126334-0038"
+};
+
+function exactModelImage(w){
+  if(!w) return "";
+  const model=String(w.model||"").trim();
+
+  if(EXACT_MODEL_IMAGES[model]) return EXACT_MODEL_IMAGES[model];
+
+  // Backward compatibility with watches already saved under older model labels.
+  const lower=model.toLowerCase();
+
+  if(lower.includes("batgirl") || (lower.includes("blnr") && lower.includes("jubilee")))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Batgirl (BLNR Jubilee)"];
+
+  if(lower.includes("batman") || (lower.includes("blnr") && lower.includes("oyster")))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Batman (BLNR Oyster)"];
+
+  if(lower.includes("root beer") || lower.includes("chnr rolesor"))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Root Beer (CHNR Rolesor)"];
+
+  if(lower.includes("pepsi") && lower.includes("jubilee"))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Pepsi (BLRO Jubilee)"];
+
+  if(lower.includes("pepsi") && lower.includes("oyster"))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Pepsi (BLRO Oyster)"];
+
+  if(lower.includes("sprite") && lower.includes("jubilee"))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Sprite (VTNR Jubilee)"];
+
+  if(lower.includes("sprite") && lower.includes("oyster"))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Sprite (VTNR Oyster)"];
+
+  if(lower.includes("bruce wayne") && lower.includes("jubilee"))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Bruce Wayne (GRNR Jubilee)"];
+
+  if(lower.includes("bruce wayne") && lower.includes("oyster"))
+    return EXACT_MODEL_IMAGES["GMT-Master II — Bruce Wayne (GRNR Oyster)"];
+
+  if(lower.includes("bluesy"))
+    return EXACT_MODEL_IMAGES["Submariner Date — Bluesy (LB)"];
+
+  if(lower.includes("starbucks"))
+    return EXACT_MODEL_IMAGES["Submariner Date — Starbucks (LV)"];
+
+  return "";
+}
+
 const WATCH_CATALOG={
   "Rolex":[
     ["Air-King 40","rolexGMT"],
@@ -362,10 +435,10 @@ function getReferenceList(brand,model){
   if(brand==="Rolex"){
     const rolexSpecial={
       "GMT-Master II — Batman (BLNR Oyster)":[
-        {ref:"126710BLNR",label:"Batman — Oyster bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0002"}
+        {ref:"126710BLNR",label:"Batman — Oyster bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Batman (BLNR Oyster)"]}
       ],
       "GMT-Master II — Batgirl (BLNR Jubilee)":[
-        {ref:"126710BLNR",label:"Batgirl — Jubilee bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0003"}
+        {ref:"126710BLNR",label:"Batgirl — Jubilee bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Batgirl (BLNR Jubilee)"]}
       ],
       "GMT-Master II — Pepsi (BLRO Oyster)":[
         {ref:"126710BLRO",label:"Pepsi — Oyster bracelet",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0003"}
@@ -386,7 +459,7 @@ function getReferenceList(brand,model){
         {ref:"126710GRNR",label:"Grey/black bezel — Jubilee bracelet",img:CATALOG_IMAGES.rolexGMT}
       ],
       "GMT-Master II — Root Beer (CHNR Rolesor)":[
-        {ref:"126711CHNR",label:"Root Beer — Everose Rolesor",img:CATALOG_IMAGES.rolexGMT}
+        {ref:"126711CHNR",label:"Root Beer — Everose Rolesor / Oyster bracelet",img:EXACT_MODEL_IMAGES["GMT-Master II — Root Beer (CHNR Rolesor)"]}
       ],
       "GMT-Master II — Root Beer (CHNR Everose Gold)":[
         {ref:"126715CHNR",label:"Root Beer — 18 ct Everose gold",img:"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126715chnr-0001"}
@@ -580,8 +653,19 @@ function esc(s){const d=document.createElement("div");d.textContent=s||"";return
 function setTab(t){activeTab=t;document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===t));document.getElementById("sectionTitle").textContent=t==="collection"?"My Collection":t==="dream"?"Dream Watches":"All Watches";render()}
 
 function repairCatalogPhoto(w){
-  if(!w || !w.photo || !w.ref) return w.photo||"";
-  const ref=String(w.ref).toUpperCase();
+  if(!w) return "";
+
+  // Exact named model/bracelet always wins.
+  const exact=exactModelImage(w);
+  if(exact) return exact;
+
+  if(!w.photo) return "";
+
+  // Keep personal uploads untouched.
+  if(String(w.photo).startsWith("data:")) return w.photo;
+
+  // Old Rolex catalog URLs can be corrected by reference as fallback.
+  const ref=String(w.ref||"").toUpperCase();
   const map={
     "124060":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m124060-0001",
     "126610LN":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126610ln-0001",
@@ -592,12 +676,15 @@ function repairCatalogPhoto(w){
     "126618LB":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126618lb-0002",
     "126500LN":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126500ln-0001",
     "126334":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126334-0038",
-    "126710BLNR":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0003"
+    "126710BLNR":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0003",
+    "126711CHNR":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126711chnr-0002"
   };
-  if(w.brand==="Rolex" && map[ref] && String(w.photo).includes("media.rolex.com")) return map[ref];
+
+  if(w.brand==="Rolex" && map[ref] && String(w.photo).includes("media.rolex.com"))
+    return map[ref];
+
   return w.photo;
 }
-
 
 function getWatchDetails(w){
   const ref=String(w?.ref||"").toUpperCase();
@@ -643,13 +730,32 @@ function getWatchDetails(w){
 function renderWatchSpecs(w){
   const d=getWatchDetails(w);
   if(!d) return "";
+
+  const model=String(w.model||"").toLowerCase();
+  const dd={...d};
+
+  if(model.includes("batgirl") || model.includes("jubilee")) ddd.bracelet="Jubilee";
+  if(model.includes("batman") || (model.includes("oyster") && model.includes("blnr"))) ddd.bracelet="Oyster";
+  if(model.includes("root beer")) ddd.bracelet="Oyster";
+  if(model.includes("bluesy") || model.includes("starbucks")) ddd.bracelet="Oyster";
   return `<div class="specs">
-    ${d.size?`<span>⌚ ${esc(d.size)}</span>`:""}
-    ${d.material?`<span>◈ ${esc(d.material)}</span>`:""}
-    ${d.dial?`<span>● ${esc(d.dial)}</span>`:""}
-    ${d.bezel?`<span>⚙ ${esc(d.bezel)}</span>`:""}
-    ${d.bracelet?`<span>▦ ${esc(d.bracelet)}</span>`:""}
+    ${dd.size?`<span>⌚ ${esc(dd.size)}</span>`:""}
+    ${dd.material?`<span>◈ ${esc(dd.material)}</span>`:""}
+    ${dd.dial?`<span>● ${esc(dd.dial)}</span>`:""}
+    ${dd.bezel?`<span>⚙ ${esc(dd.bezel)}</span>`:""}
+    ${dd.bracelet?`<span>▦ ${esc(dd.bracelet)}</span>`:""}
   </div>`;
+}
+
+
+function displayReference(w){
+  if(w?.ref) return String(w.ref);
+  const model=String(w?.model||"").toLowerCase();
+  if(model.includes("batgirl") || model.includes("batman")) return "126710BLNR";
+  if(model.includes("root beer") && model.includes("rolesor")) return "126711CHNR";
+  if(model.includes("bluesy")) return "126613LB";
+  if(model.includes("starbucks")) return "126610LV";
+  return "";
 }
 
 function render(){
@@ -667,7 +773,7 @@ function render(){
     <div class="cardbody">
       <span class="badge">${w.section==="collection"?"Owned":"Dream Watch"}</span>
       <h3>${esc(w.brand)} ${esc(w.model)}</h3>
-      <div class="ref">${w.ref?`Ref. ${esc(w.ref)}`:"No reference entered"}</div>
+      <div class="ref">${displayReference(w)?`Ref. ${esc(displayReference(w))}`:"No reference entered"}</div>
       ${renderWatchSpecs(w)}
       <div class="price">${money(w.price)}</div>
       <div class="notes">${esc(w.notes||"")}</div>

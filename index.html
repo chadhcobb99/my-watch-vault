@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Watch Vault — V3.14</title>
+<title>My Watch Vault — V3.15</title>
 
 <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js" crossorigin="anonymous"></script>
 
@@ -193,7 +193,7 @@ button{cursor:pointer}
       <div class="field"><label>Price / Value ($)</label><input id="fPrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
       <div class="field"><label>Date Acquired / Target Date</label><input id="fDate" type="date"></div>
       <div class="field"><label>Love Rank</label><input id="fRank" type="number" min="1" step="1" placeholder="1 = favorite"></div>
-      <div class="field"><label>Ranking</label><input value="Lower number = higher rank" disabled></div>
+      <div class="field"><label>Ranking</label><input value="Changing rank automatically reorders the list" disabled></div>
       <div class="field span2"><label>Watch Photo</label><input id="fPhoto" type="file" accept="image/*"></div>
       <div class="field span2"><label>Notes</label><textarea id="fNotes" placeholder="Condition, dial, bracelet, seller, why I want it..."></textarea></div>
     </div>
@@ -862,6 +862,35 @@ function displayReference(w){
 }
 
 
+
+function resequenceSectionRanks(section){
+  const ranked=vault.watches
+    .filter(w=>w.section===section && normalizeRank(w.rank)!==null)
+    .sort((a,b)=>{
+      const ar=normalizeRank(a.rank);
+      const br=normalizeRank(b.rank);
+      if(ar!==br) return ar-br;
+      return String(a.id||"").localeCompare(String(b.id||""));
+    });
+
+  ranked.forEach((w,i)=>{w.rank=i+1;});
+}
+
+function insertRankInSection(section,desiredRank){
+  const ranked=vault.watches
+    .filter(w=>w.section===section && normalizeRank(w.rank)!==null)
+    .sort(rankSort);
+
+  const target=Math.max(1,Math.min(Number(desiredRank)||1,ranked.length+1));
+
+  ranked.forEach(w=>{
+    const r=normalizeRank(w.rank);
+    if(r!==null && r>=target) w.rank=r+1;
+  });
+
+  return target;
+}
+
 function normalizeRank(v){
   const n=parseInt(v,10);
   return Number.isFinite(n)&&n>0?n:null;
@@ -934,15 +963,77 @@ function fileToDataURL(file){return new Promise((res,rej)=>{const r=new FileRead
 async function saveWatch(){
   const brand=document.getElementById("fBrand").value.trim(), model=document.getElementById("fModel").value.trim();
   if(!brand||!model){alert("Please enter the brand and model.");return}
-  let old=editingId?vault.watches.find(x=>x.id===editingId):null, photo=selectedCatalogPhoto||(old?.photo||"");
-  const file=document.getElementById("fPhoto").files[0]; if(file) photo=await fileToDataURL(file);
-  const rankValue=parseInt(document.getElementById("fRank").value,10);
-  const w={id:editingId||String(Date.now()),section:document.getElementById("fSection").value,brand,model,ref:document.getElementById("fRef").value.trim(),price:Number(document.getElementById("fPrice").value)||0,date:document.getElementById("fDate").value,rank:Number.isFinite(rankValue)&&rankValue>0?rankValue:null,notes:document.getElementById("fNotes").value.trim(),photo};
-  if(editingId) vault.watches=vault.watches.map(x=>x.id===editingId?w:x); else vault.watches.unshift(w);
-  closeModal();render();await saveCloud();
+
+  const old=editingId?vault.watches.find(x=>x.id===editingId):null;
+  let photo=selectedCatalogPhoto||(old?.photo||"");
+  const file=document.getElementById("fPhoto").files[0];
+  if(file) photo=await fileToDataURL(file);
+
+  const newSection=document.getElementById("fSection").value;
+  const enteredRank=parseInt(document.getElementById("fRank").value,10);
+  const wantsRank=Number.isFinite(enteredRank)&&enteredRank>0;
+
+  // Remove the watch temporarily when editing so its old rank does not
+  // compete with the new position.
+  if(old){
+    vault.watches=vault.watches.filter(x=>x.id!==editingId);
+
+    // Close the old ranking gap first.
+    resequenceSectionRanks(old.section);
+  }
+
+  // Insert the requested rank into the destination section.
+  // Existing watches at that rank and below automatically move down.
+  const finalRank=wantsRank
+    ? insertRankInSection(newSection,enteredRank)
+    : null;
+
+  const w={
+    id:editingId||String(Date.now()),
+    section:newSection,
+    brand,
+    model,
+    ref:document.getElementById("fRef").value.trim(),
+    price:Number(document.getElementById("fPrice").value)||0,
+    date:document.getElementById("fDate").value,
+    rank:finalRank,
+    notes:document.getElementById("fNotes").value.trim(),
+    photo
+  };
+
+  vault.watches.unshift(w);
+
+  // Final cleanup guarantees a clean 1,2,3... sequence with no duplicates.
+  resequenceSectionRanks(newSection);
+
+  closeModal();
+  render();
+  await saveCloud();
 }
-async function deleteWatch(id){if(!confirm("Delete this watch?"))return;vault.watches=vault.watches.filter(w=>w.id!==id);render();await saveCloud()}
-async function moveWatch(id){const w=vault.watches.find(x=>x.id===id);if(!w)return;w.section=w.section==="collection"?"dream":"collection";render();await saveCloud()}
+async function deleteWatch(id){
+  if(!confirm("Delete this watch?"))return;
+  const old=vault.watches.find(w=>w.id===id);
+  vault.watches=vault.watches.filter(w=>w.id!==id);
+  if(old) resequenceSectionRanks(old.section);
+  render();
+  await saveCloud();
+}
+async function moveWatch(id){
+  const w=vault.watches.find(x=>x.id===id);
+  if(!w)return;
+
+  const oldSection=w.section;
+  const newSection=w.section==="collection"?"dream":"collection";
+
+  // Remove its rank from the old list and place it at the bottom
+  // of the ranked watches in the destination list.
+  w.section=newSection;
+  w.rank=null;
+  resequenceSectionRanks(oldSection);
+
+  render();
+  await saveCloud();
+}
 const PUBLIC_SHARE_FILE="share-data.json";
 const SHORT_SHARE_URL="https://chadhcobb99.github.io/my-watch-vault/?view=1";
 

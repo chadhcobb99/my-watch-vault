@@ -734,10 +734,10 @@ function renderWatchSpecs(w){
   const model=String(w.model||"").toLowerCase();
   const dd={...d};
 
-  if(model.includes("batgirl") || model.includes("jubilee")) ddd.bracelet="Jubilee";
-  if(model.includes("batman") || (model.includes("oyster") && model.includes("blnr"))) ddd.bracelet="Oyster";
-  if(model.includes("root beer")) ddd.bracelet="Oyster";
-  if(model.includes("bluesy") || model.includes("starbucks")) ddd.bracelet="Oyster";
+  if(model.includes("batgirl") || model.includes("jubilee")) dd.bracelet="Jubilee";
+  if(model.includes("batman") || (model.includes("oyster") && model.includes("blnr"))) dd.bracelet="Oyster";
+  if(model.includes("root beer")) dd.bracelet="Oyster";
+  if(model.includes("bluesy") || model.includes("starbucks")) dd.bracelet="Oyster";
   return `<div class="specs">
     ${dd.size?`<span>⌚ ${esc(dd.size)}</span>`:""}
     ${dd.material?`<span>◈ ${esc(dd.material)}</span>`:""}

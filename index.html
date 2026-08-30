@@ -211,15 +211,16 @@ const CATALOG_IMAGES={
 
 
 const EXACT_MODEL_IMAGES={
+  "Aquanaut Rose Gold — Chocolate":"https://gandgtimepieces.com/cdn/shop/products/DSC_1742-X4.jpg?v=1675095416",
   "GMT-Master II — Zombie (GRNR Yellow Rolesor)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126713grnr-0001",
-  "Oyster Perpetual 41 — Tiffany / Turquoise Blue":"https://content.rolex.com/dam/2022-11/upright-bba-with-shadow/m124300-0006.png",
+  "Oyster Perpetual 41 — Tiffany / Turquoise Blue":"https://a.1stdibscdn.com/rolex-oyster-perpetual-41mm-turquoise-blue-dial-stainless-steel-watch-124300-for-sale/j_17711/j_131432221629952880527/4015_master.JPG",
   "Oyster Perpetual 41 — Green Dial":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m134300-0004",
   "Datejust 41 — Mint Green Jubilee":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126334-0028",
   "GMT-Master II — Batman (BLNR Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0003",
   "GMT-Master II — Batgirl (BLNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blnr-0002",
 
   "GMT-Master II — Pepsi (BLRO Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0002",
-  "GMT-Master II — Pepsi (BLRO Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126710blro-0001",
+  "GMT-Master II — Pepsi (BLRO Jubilee)":"https://www.upstagewatches.com.au/cdn/shop/files/L1010761.jpg?v=1753090479&width=640",
 
   "GMT-Master II — Sprite (VTNR Oyster)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0001",
   "GMT-Master II — Sprite (VTNR Jubilee)":"https://media.rolex.com/image/upload/q_auto/f_auto/c_limit,w_900/v1/a677b2c664f6/catalogue/2026/upright-c/m126720vtnr-0002",
@@ -248,6 +249,9 @@ function exactModelImage(w){
   if(EXACT_MODEL_IMAGES[model]) return EXACT_MODEL_IMAGES[model];
 
   // Backward compatibility with watches already saved under older model labels.
+  if(model==="Aquanaut Rose Gold — Chocolate")
+    return EXACT_MODEL_IMAGES["Aquanaut Rose Gold — Chocolate"];
+
   const lower=model.toLowerCase();
 
   if(lower.includes("batgirl") || (lower.includes("blnr") && lower.includes("jubilee")))
@@ -562,7 +566,7 @@ if(brand==="Audemars Piguet"){
   
     if(model==="Aquanaut Rose Gold — Chocolate"){
       return [
-        {ref:"5167R-001",label:"Aquanaut — rose gold, chocolate brown",img:CATALOG_IMAGES.patekAquanaut}
+        {ref:"5167R-001",label:"Aquanaut — rose gold, chocolate brown",img:EXACT_MODEL_IMAGES["Aquanaut Rose Gold — Chocolate"]}
       ];
     }
 if(brand==="Patek Philippe"){
@@ -812,7 +816,7 @@ function render(){
   const g=document.getElementById("watchGrid");
   if(!list.length){g.innerHTML=`<div class="empty">No watches here yet.<br><span class="owner-only">Click <b>Add Watch</b> to start your vault.</span></div>`;return}
   g.innerHTML=list.map(w=>`<article class="card">
-    <div class="photo">${repairCatalogPhoto(w)?`<img src="${repairCatalogPhoto(w)}" alt="${esc(w.brand+" "+w.model)}">`:`<div class="placeholder">⌚</div>`}</div>
+    <div class="photo">${repairCatalogPhoto(w)?`<img src="${repairCatalogPhoto(w)}" alt="${esc(w.brand+" "+w.model)}" onerror="this.onerror=null;this.style.display='none';this.parentElement.innerHTML='<div class=&quot;placeholder&quot;>⌚</div>'">`:`<div class="placeholder">⌚</div>`}</div>
     <div class="cardbody">
       <span class="badge">${w.section==="collection"?"Owned":"Dream Watch"}</span>
       <h3>${esc(w.brand)} ${esc(w.model)}</h3>
